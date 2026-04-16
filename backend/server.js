@@ -30,6 +30,15 @@ const connectDB = async () => {
 
 connectDB();
 
+// Import routes
+const authRoutes = require('./routes/auth');
+const contentRoutes = require('./routes/content');
+const genreRoutes = require('./routes/genre');
+const watchlistRoutes = require('./routes/watchlist');
+const reviewRoutes = require('./routes/review');
+const watchHistoryRoutes = require('./routes/watchHistory');
+const subscriptionRoutes = require('./routes/subscription');
+
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'HnH TV API Server is running' });
@@ -39,6 +48,15 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/genres', genreRoutes);
+app.use('/api/watchlist', watchlistRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/watch-history', watchHistoryRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

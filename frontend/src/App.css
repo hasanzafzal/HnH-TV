@@ -1,7 +1,8 @@
 .App {
   text-align: center;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+  color: #fff;
 }
 
 .loading {
@@ -10,5 +11,82 @@
   align-items: center;
   min-height: 100vh;
   font-size: 24px;
-  color: #333;
+  color: #fff;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+  font-weight: 600;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background-color: #e50914;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #c40812;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid white;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.btn-added {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-added:hover {
+  background-color: #218838;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e50914;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c40812;
 }

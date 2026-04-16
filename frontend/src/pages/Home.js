@@ -1,19 +1,116 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
+import CategorySlider from '../components/CategorySlider';
 import '../styles/pages.css';
+import apiClient from '../utils/api';
 
 function Home() {
+  const navigate = useNavigate();
+  const [trendingContent, setTrendingContent] = useState([]);
+  const [newReleases, setNewReleases] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch trending
+      const trendingRes = await apiClient.get('/content/trending');
+      setTrendingContent(trendingRes.data.data);
+
+      // Fetch all content
+      const allRes = await apiClient.get('/content?limit=50');
+      setNewReleases(allRes.data.data.slice(0, 20));
+      setPopularMovies(allRes.data.data.slice(20, 40));
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching content:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleWatchClick = (contentId) => {
+    navigate(`/watch/${contentId}`);
+  };
+
+  const handleAddWatchlist = async (contentId) => {
+    try {
+      await apiClient.post(`/watchlist/${contentId}`);
+      alert('Added to watchlist!');
+    } catch (error) {
+      if (error.response?.status === 401) {
+        navigate('/login');
+      } else {
+        alert(error.response?.data?.message || 'Error adding to watchlist');
+      }
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  const featuredContent = trendingContent[0];
+
   return (
     <div className="home">
-      <header className="header">
-        <h1>Welcome to HnH TV</h1>
-        <p>Your favorite streaming platform</p>
-      </header>
-      <main className="main-content">
-        <section>
-          <h2>Get Started</h2>
-          <p>This is a MERN Stack application. Start building your features!</p>
+      <Header />
+
+      {featuredContent && (
+        <section className="hero-banner" style={{ backgroundImage: `url(${featuredContent.bannerUrl})` }}>
+          <div className="hero-content">
+            <h1>{featuredContent.title}</h1>
+            <p>{featuredContent.description}</p>
+            <div className="hero-buttons">
+              <button
+                className="btn btn-primary"
+                onClick={() => handleWatchClick(featuredContent._id)}
+              >
+                ▶ Play
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => handleAddWatchlist(featuredContent._id)}
+              >
+                + Watchlist
+              </button>
+            </div>
+          </div>
         </section>
-      </main>
+      )}
+
+      <div className="content-section">
+        {trendingContent.length > 0 && (
+          <CategorySlider
+            title="Trending Now"
+            content={trendingContent}
+            onItemClick={handleWatchClick}
+          />
+        )}
+
+        {newReleases.length > 0 && (
+          <CategorySlider
+            title="New Releases"
+            content={newReleases}
+            onItemClick={handleWatchClick}
+          />
+        )}
+
+        {popularMovies.length > 0 && (
+          <CategorySlider
+            title="Popular Movies"
+            content={popularMovies}
+            onItemClick={handleWatchClick}
+          />
+        )}
+      </div>
     </div>
   );
 }

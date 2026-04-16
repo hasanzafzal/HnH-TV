@@ -1,202 +1,300 @@
-# HnH TV - MERN Stack Application
+# HnH TV - OTT Streaming Platform
 
-A full-stack web application built with MongoDB, Express.js, React, and Node.js (MERN).
+A professional OTT (Over-The-Top) streaming platform built with the MERN stack (MongoDB, Express.js, React, Node.js). Stream movies, TV shows, manage watchlists, write reviews, and subscribe to different plans.
 
-## Project Structure
+## 🚀 Features
+
+### Core Features
+- **Content Management**: Browse movies and TV series with detailed information
+- **Search & Discovery**: Full-text search across content library
+- **Watchlist Management**: Add/remove content to personal watchlist
+- **Review System**: Rate and review content with automatic rating aggregation
+- **Watch History**: Track viewing progress and continue where you left off
+- **User Profiles**: Personalized user profiles with watch statistics
+- **Subscription Plans**: Multiple subscription tiers (Free, Basic, Premium, VIP)
+- **Video Player**: Built-in video player with quality and volume controls
+
+### Advanced Features
+- Trending content recommendations
+- Genre-based content filtering
+- Progress tracking for incomplete content
+- User authentication with JWT
+- Responsive design for all devices
+
+## 📁 Project Structure
 
 ```
 HnH-TV/
-├── backend/                 # Node.js + Express backend
-│   ├── config/             # Configuration files
-│   ├── models/             # Mongoose schemas
-│   ├── routes/             # API routes
-│   ├── controllers/        # Route controllers
-│   ├── middleware/         # Custom middleware
-│   ├── utils/              # Utility functions
-│   ├── server.js           # Express server
-│   ├── package.json        # Backend dependencies
-│   ├── .env.example        # Environment variables template
-│   └── .gitignore          # Git ignore rules
+├── backend/
+│   ├── config/
+│   │   └── database.js           # MongoDB connection
+│   ├── models/
+│   │   ├── User.js               # User schema
+│   │   ├── Content.js            # Movie/TV series schema
+│   │   ├── Genre.js              # Genre schema
+│   │   ├── Subscription.js       # Subscription schema
+│   │   ├── Watchlist.js          # Watchlist schema
+│   │   ├── Review.js             # Review/rating schema
+│   │   ├── WatchHistory.js       # Watch history schema
+│   │   └── Episode.js            # TV episode schema
+│   ├── controllers/
+│   │   ├── authController.js     # Auth logic
+│   │   ├── contentController.js  # Content CRUD
+│   │   ├── genreController.js    # Genre CRUD
+│   │   ├── watchlistController.js
+│   │   ├── reviewController.js   # Review management
+│   │   ├── watchHistoryController.js
+│   │   └── subscriptionController.js
+│   ├── routes/
+│   │   ├── auth.js               # Auth endpoints
+│   │   ├── content.js            # Content endpoints
+│   │   ├── genre.js              # Genre endpoints
+│   │   ├── watchlist.js          # Watchlist endpoints
+│   │   ├── review.js             # Review endpoints
+│   │   ├── watchHistory.js       # History endpoints
+│   │   └── subscription.js       # Subscription endpoints
+│   ├── middleware/
+│   │   ├── auth.js               # JWT verification
+│   │   └── errorHandler.js       # Error handling
+│   ├── utils/
+│   │   └── validators.js         # Input validation
+│   ├── constants/
+│   │   └── ott.js                # OTT constants
+│   ├── server.js                 # Express server
+│   ├── package.json
+│   └── .env.example
 │
-├── frontend/               # React.js frontend
-│   ├── public/             # Static assets
+├── frontend/
+│   ├── public/
+│   │   └── index.html
 │   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── utils/          # Utility functions
-│   │   ├── styles/         # CSS stylesheets
-│   │   ├── App.js          # Main App component
-│   │   └── index.js        # React entry point
-│   ├── package.json        # Frontend dependencies
-│   ├── .env.example        # Environment variables template
-│   └── .gitignore          # Git ignore rules
+│   │   ├── components/
+│   │   │   ├── Header.js         # Navigation header
+│   │   │   ├── VideoCard.js      # Content card component
+│   │   │   ├── CategorySlider.js # Horizontal content slider
+│   │   │   ├── RatingComponent.js # Star rating widget
+│   │   │   └── VideoPlayer.js    # Video player
+│   │   ├── pages/
+│   │   │   ├── Home.js           # Home/dashboard
+│   │   │   ├── ContentDetail.js  # Content details & reviews
+│   │   │   ├── Watch.js          # Video player page
+│   │   │   ├── Watchlist.js      # User's watchlist
+│   │   │   ├── Search.js         # Search results
+│   │   │   ├── Profile.js        # User profile
+│   │   │   ├── Subscription.js   # Subscription management
+│   │   │   └── NotFound.js       # 404 page
+│   │   ├── utils/
+│   │   │   ├── api.js            # Axios API client
+│   │   │   └── storage.js        # LocalStorage helpers
+│   │   ├── styles/
+│   │   │   ├── index.css         # Global styles
+│   │   │   ├── components.css    # Component styles
+│   │   │   └── pages.css         # Page styles
+│   │   ├── App.js                # Main component
+│   │   └── index.js              # Entry point
+│   ├── package.json
+│   └── .env.example
 │
-└── README.md               # This file
+└── README.md
 ```
 
-## Prerequisites
-
-- **Node.js** (v16 or higher)
-- **MongoDB** (local or Atlas)
-- **npm** or **yarn**
-
-## Setup Instructions
-
-### 1. Backend Setup
-
-Navigate to the backend directory:
-
-```bash
-cd backend
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Create a `.env` file based on `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Update the `.env` file with your configuration:
-
-```
-PORT=5000
-NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/hnh-tv
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRE=7d
-FRONTEND_URL=http://localhost:3000
-```
-
-Start the backend server:
-
-```bash
-npm run dev
-```
-
-The server will run on `http://localhost:5000`
-
-### 2. Frontend Setup
-
-Navigate to the frontend directory:
-
-```bash
-cd frontend
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Create a `.env` file based on `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Update the `.env` file (optional):
-
-```
-REACT_APP_API_URL=http://localhost:5000/api
-```
-
-Start the development server:
-
-```bash
-npm start
-```
-
-The app will open at `http://localhost:3000`
-
-## Available Scripts
-
-### Backend
-
-- `npm start` - Start the production server
-- `npm run dev` - Start the development server with nodemon
-
-### Frontend
-
-- `npm start` - Start the development server
-- `npm run build` - Build for production
-- `npm test` - Run tests
-
-## API Endpoints
+## 🔌 API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user (requires token)
+```
+POST   /api/auth/register         # Register new user
+POST   /api/auth/login            # Login user
+GET    /api/auth/me               # Get current user (protected)
+```
 
-### Health
-- `GET /api/health` - API health check
+### Content
+```
+GET    /api/content               # Get all content (with filters)
+GET    /api/content/:id           # Get content by ID
+GET    /api/content/trending      # Get trending content
+GET    /api/content/genre/:genreId # Get content by genre
+GET    /api/content/search/:query  # Search content
+POST   /api/content               # Create content (admin)
+PUT    /api/content/:id           # Update content (admin)
+DELETE /api/content/:id           # Delete content (admin)
+```
 
-## Technologies Used
+### Genres
+```
+GET    /api/genres                # Get all genres
+GET    /api/genres/:id            # Get genre by ID
+POST   /api/genres                # Create genre (admin)
+PUT    /api/genres/:id            # Update genre (admin)
+DELETE /api/genres/:id            # Delete genre (admin)
+```
+
+### Watchlist
+```
+GET    /api/watchlist             # Get user's watchlist (protected)
+POST   /api/watchlist/:contentId  # Add to watchlist (protected)
+DELETE /api/watchlist/:contentId  # Remove from watchlist (protected)
+GET    /api/watchlist/check/:contentId # Check if in watchlist (protected)
+```
+
+### Reviews
+```
+GET    /api/reviews/:contentId    # Get reviews for content
+POST   /api/reviews/:contentId    # Create review (protected)
+PUT    /api/reviews/:reviewId     # Update review (protected)
+DELETE /api/reviews/:reviewId     # Delete review (protected)
+```
+
+### Watch History
+```
+GET    /api/watch-history         # Get user's history (protected)
+GET    /api/watch-history/:contentId # Get progress for content (protected)
+POST   /api/watch-history/:contentId # Update watch progress (protected)
+GET    /api/watch-history/continue-watching # Get resume list (protected)
+```
+
+### Subscription
+```
+GET    /api/subscription          # Get user's subscription (protected)
+GET    /api/subscription/plans    # Get all plans
+POST   /api/subscription          # Create/update subscription (protected)
+DELETE /api/subscription          # Cancel subscription (protected)
+```
+
+## 🔑 Database Models
+
+### User
+- name, email, password (hashed)
+- createdAt, updatedAt
+
+### Content
+- title, description, contentType (movie/tv_series)
+- genre (array of ObjectIds), releaseDate
+- duration (minutes), rating, views
+- directors [], cast [], posterUrl, thumbnailUrl, bannerUrl, videoUrl
+- ageRating, language [], subtitles [], quality
+- isActive, createdAt, updatedAt
+
+### Genre
+- name (unique), description, iconUrl, isActive
+
+### Subscription
+- user (ObjectId), plan (free/basic/premium/vip)
+- monthlyPrice, startDate, endDate, isActive
+- billingCycle (monthly/yearly), autoRenew
+- maxScreens, maxQuality
+
+### Watchlist
+- user (ObjectId), content (ObjectId)
+- addedAt, unique constraint on (user, content)
+
+### Review
+- user (ObjectId), content (ObjectId)
+- rating (1-10), title, comment
+- helpful (count), createdAt, updatedAt
+
+### WatchHistory
+- user (ObjectId), content (ObjectId)
+- watchedAt, duration (seconds), progress (0-100%), isCompleted
+
+### Episode
+- tvSeries (ObjectId), season, episodeNumber (unique per series)
+- title, description, duration, releaseDate
+- videoUrl, thumbnailUrl, rating
+
+## 🛠️ Tech Stack
 
 ### Backend
 - **Express.js** - Web framework
-- **MongoDB** - Database
+- **MongoDB** - NoSQL database
 - **Mongoose** - ODM
-- **JWT** - Authentication
+- **JWT** - Authentication token
 - **bcryptjs** - Password hashing
-- **CORS** - Cross-Origin Resource Sharing
+- **CORS** - Cross-origin requests
 - **dotenv** - Environment variables
 
 ### Frontend
 - **React** - UI library
-- **React Router** - Client-side routing
+- **React Router DOM** - Client-side routing
 - **Axios** - HTTP client
 - **CSS3** - Styling
 
-## Folder Structure Explanation
+## 📋 Prerequisites
 
-### Backend Folders
+- Node.js (v16 or higher)
+- MongoDB (v4.0 or higher)
+- npm or yarn package manager
 
-- **config/** - Database and app configuration
-- **models/** - Mongoose data models
-- **routes/** - API route definitions
-- **controllers/** - Business logic and request handlers
-- **middleware/** - Custom middleware (auth, error handling)
-- **utils/** - Helper functions and validators
+## ⚙️ Setup Instructions
 
-### Frontend Folders
+### 1. Clone Repository
+```bash
+git clone https://github.com/hasanzafzal/HnH-TV.git
+cd HnH-TV
+```
 
-- **public/** - Static HTML and assets
-- **src/components/** - Reusable React components
-- **src/pages/** - Full page components
-- **src/utils/** - API calls and utility functions
-- **src/styles/** - CSS stylesheets
+### 2. Backend Setup
 
-## Environment Variables
+```bash
+cd backend
 
-### Backend (.env)
+# Install dependencies
+npm install
 
+# Create .env file
+cp .env.example .env
+
+# Edit .env with your configuration
+nano .env
+```
+
+**Backend .env variables:**
 ```
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb://localhost:27017/hnh-tv
-JWT_SECRET=your_secret_key
+JWT_SECRET=your_super_secret_key_here
 JWT_EXPIRE=7d
 FRONTEND_URL=http://localhost:3000
 ```
 
-### Frontend (.env)
+**Start backend:**
+```bash
+npm run dev  # Development with nodemon
+npm start    # Production
+```
 
+Backend will run on `http://localhost:5000`
+
+### 3. Frontend Setup
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Create .env file
+cp .env.example .env
+
+# Edit .env (optional)
+nano .env
+```
+
+**Frontend .env variables:**
 ```
 REACT_APP_API_URL=http://localhost:5000/api
 REACT_APP_NODE_ENV=development
 ```
 
-## Running Both Servers
+**Start frontend:**
+```bash
+npm start  # Development
+npm run build  # Production build
+```
 
-To run both backend and frontend simultaneously:
+Frontend will open at `http://localhost:3000`
+
+### 4. Run Both Servers Simultaneously
 
 **Terminal 1 (Backend):**
 ```bash
@@ -210,44 +308,167 @@ cd frontend
 npm start
 ```
 
-## Development Notes
+## 📊 Subscription Plans
 
-1. The frontend is configured to proxy API calls to the backend via the `proxy` field in `package.json`
-2. JWT tokens are stored in localStorage on the client side
-3. Protected routes require a Bearer token in the Authorization header
-4. CORS is enabled for frontend communication with the backend
+| Plan | Price | Screens | Quality | Features |
+|------|-------|---------|---------|----------|
+| Free | ₹0/mo | 1 | 480p | Limited content, Ads |
+| Basic | ₹99/mo | 1 | 720p | Full library, No ads |
+| Premium | ₹199/mo | 4 | 1080p | Full library, Full HD |
+| VIP | ₹299/mo | 6 | 4K | Everything + Priority support |
 
-## Troubleshooting
+## 🔒 Authentication Flow
 
-**MongoDB Connection Error:**
-- Ensure MongoDB is running
-- Check the MONGODB_URI in `.env`
+1. User registers with email/password
+2. Password is hashed using bcryptjs
+3. JWT token is generated and returned
+4. Token is stored in browser localStorage
+5. Token is sent in Authorization header for protected routes
+6. Backend verifies token before allowing access
 
-**Port Already in Use:**
-- Change the PORT in backend `.env`
-- Or kill the process using the port
+## 📱 Responsive Design
 
-**CORS Issues:**
-- Verify FRONTEND_URL in backend `.env`
-- Ensure backend CORS middleware is properly configured
+The platform is fully responsive with breakpoints for:
+- Mobile: < 768px
+- Tablet: 768px - 1024px
+- Desktop: > 1024px
 
-## Future Enhancements
+## 🚀 Performance Features
 
-- Add authentication UI (Login/Register pages)
-- Implement video/content models
-- Add user profile management
-- Implement search functionality
-- Add admin dashboard
-- Deploy to production
+- Lazy loading for content
+- Image optimization with poster/thumbnail/banner URLs
+- Pagination for reviews and watch history
+- Indexed MongoDB queries for fast searches
+- Minified production builds
 
-## License
+## 🔐 Security Features
 
-ISC
+- JWT token-based authentication
+- Password hashing with bcryptjs
+- CORS configuration
+- Input validation on backend
+- Protected routes requiring authentication
+- Secure token storage (localStorage)
 
-## Contributing
+## 🐛 Troubleshooting
+
+### MongoDB Connection Failed
+```
+Error: connect ECONNREFUSED
+```
+**Solution:** Ensure MongoDB is running
+```bash
+# macOS with Homebrew
+brew services start mongodb-community
+
+# Linux
+sudo systemctl start mongod
+
+# Or use MongoDB Atlas (Cloud)
+```
+
+### Port Already in Use
+**Solution:** Change PORT in .env or kill the process
+```bash
+# Find process on port 5000
+lsof -i :5000
+
+# Kill process
+kill -9 <PID>
+```
+
+### CORS Issues
+**Solution:** Verify FRONTEND_URL in backend .env matches actual URL
+
+### Module Not Found
+**Solution:** Reinstall dependencies
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+## 📈 Future Enhancements
+
+- [ ] User authentication UI (Login/Register pages)
+- [ ] Payment integration (Stripe/PayPal)
+- [ ] Email notifications
+- [ ] Social sharing features
+- [ ] Admin dashboard
+- [ ] Analytics and metrics
+- [ ] Multi-language support
+- [ ] Dark/Light theme toggle
+- [ ] Mobile app (React Native)
+- [ ] Live streaming support
+- [ ] Comments and discussions
+- [ ] Personalized recommendations (ML based)
+
+## 📝 Environment Variables
+
+### Backend (.env)
+```
+# Server
+PORT=5000
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/hnh-tv
+
+# JWT
+JWT_SECRET=your_secret_key
+JWT_EXPIRE=7d
+
+# URLs
+FRONTEND_URL=http://localhost:3000
+API_URL=http://localhost:5000
+```
+
+### Frontend (.env)
+```
+REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_NODE_ENV=development
+```
+
+## 📄 Available Scripts
+
+### Backend
+- `npm start` - Production server
+- `npm run dev` - Development with nodemon
+- `npm test` - Run tests
+
+### Frontend
+- `npm start` - Development server
+- `npm run build` - Production build
+- `npm test` - Run tests
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request 
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the ISC License - see LICENSE file for details
+
+## 👨‍💻 Author
+
+**Hasan Zafzal**
+- GitHub: [@hasanzafzal](https://github.com/hasanzafzal)
+
+## 🙏 Acknowledgments
+
+- MERN Stack community
+- MongoDB documentation
+- React documentation
+- Express.js documentation
+
+## 📧 Support
+
+For support, email support@hnhtv.com or open an issue on GitHub
+
+---
+
+**Last Updated:** April 2026
+**Version:** 1.0.0 
