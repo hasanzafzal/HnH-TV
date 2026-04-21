@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import VideoCard from '../components/VideoCard';
@@ -12,13 +12,7 @@ function Search() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (query) {
-      performSearch();
-    }
-  }, [query]);
-
-  const performSearch = async () => {
+  const performSearch = useCallback(async () => {
     try {
       setLoading(true);
       const res = await apiClient.get(`/content/search/${query}`);
@@ -28,7 +22,13 @@ function Search() {
       console.error('Error searching:', error);
       setLoading(false);
     }
-  };
+  }, [query]);
+
+  useEffect(() => {
+    if (query) {
+      performSearch();
+    }
+  }, [query, performSearch]);
 
   const handleWatch = (contentId) => {
     navigate(`/watch/${contentId}`);

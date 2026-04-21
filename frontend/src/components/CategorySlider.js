@@ -2,17 +2,13 @@ import React from 'react';
 import '../styles/components.css';
 
 function CategorySlider({ title, content, onItemClick }) {
-  const [scrollPos, setScrollPos] = React.useState(0);
-
   const scroll = (direction) => {
     const slider = document.querySelector('.slider-content');
     const scrollAmount = 400;
     if (direction === 'left') {
       slider.scrollLeft -= scrollAmount;
-      setScrollPos(slider.scrollLeft);
     } else {
       slider.scrollLeft += scrollAmount;
-      setScrollPos(slider.scrollLeft);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import VideoPlayer from '../components/VideoPlayer';
@@ -12,11 +12,7 @@ function Watch() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchContent();
-  }, [contentId]);
-
-  const fetchContent = async () => {
+  const fetchContent = useCallback(async () => {
     try {
       const res = await apiClient.get(`/content/${contentId}`);
       setContent(res.data.data);
@@ -34,7 +30,11 @@ function Watch() {
       console.error('Error fetching content:', error);
       setLoading(false);
     }
-  };
+  }, [contentId, user]);
+
+  useEffect(() => {
+    fetchContent();
+  }, [contentId, fetchContent]);
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!content) return <div className="error">Content not found</div>;

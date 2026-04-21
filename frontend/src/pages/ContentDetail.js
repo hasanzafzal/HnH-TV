@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import RatingComponent from '../components/RatingComponent';
@@ -17,14 +17,7 @@ function ContentDetail() {
   const [reviewText, setReviewText] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchContent();
-    if (user) {
-      checkWatchlist();
-    }
-  }, [contentId, user]);
-
-  const fetchContent = async () => {
+  const fetchContent = useCallback(async () => {
     try {
       const res = await apiClient.get(`/content/${contentId}`);
       setContent(res.data.data);
@@ -37,16 +30,25 @@ function ContentDetail() {
       console.error('Error fetching content:', error);
       setLoading(false);
     }
-  };
+  }, [contentId]);
 
-  const checkWatchlist = async () => {
+  const checkWatchlist = useCallback(async () => {
     try {
       const res = await apiClient.get(`/watchlist/check/${contentId}`);
       setInWatchlist(res.data.inWatchlist);
     } catch (error) {
       console.error('Error checking watchlist:', error);
     }
-  };
+  }, [contentId]);
+
+  useEffect(() => {
+    fetchContent();
+    if (user) {
+      checkWatchlist();
+    }
+  }, [contentId, user, fetchContent, checkWatchlist]);
+
+
 
   const handleAddWatchlist = async () => {
     if (!user) {
