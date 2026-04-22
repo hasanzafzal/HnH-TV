@@ -13,13 +13,15 @@ const connectDB = async () => {
       socketTimeoutMS: 45000, // Prevent hanging queries
       serverSelectionTimeoutMS: 5000, // Quick failover for topology changes
     });
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-    console.log(`Database: ${conn.connection.name}`);
+    console.log(`✓ MongoDB Connected: ${conn.connection.host}`);
+    console.log(`✓ Database: ${conn.connection.name}`);
     return conn;
   } catch (error) {
-    console.error(`MongoDB Connection Error: ${error.message}`);
-    console.error(`Check your MONGODB_URI and ensure the MongoDB cluster is accessible.`);
-    process.exit(1);
+    console.error(`⚠ MongoDB Connection Error: ${error.message}`);
+    console.error(`⚠ Check your MONGODB_URI and ensure the MongoDB cluster is accessible.`);
+    console.warn('\n⚠ Server will continue running without database connection for development.\n');
+    // Don't exit - allow server to continue for frontend development
+    return null;
   }
 };
 
