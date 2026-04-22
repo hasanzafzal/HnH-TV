@@ -20,6 +20,7 @@ out/
 .vscode/
 .idea/
 *.swp
+*.swo
 *~
 *.sublime-project
 *.sublime-workspace
