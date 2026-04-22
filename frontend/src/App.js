@@ -9,6 +9,9 @@ import Watchlist from './pages/Watchlist';
 import Search from './pages/Search';
 import Profile from './pages/Profile';
 import Subscription from './pages/Subscription';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Explore from './pages/Explore';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -31,6 +34,9 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/explore" element={<Explore />} />
           <Route path="/detail/:contentId" element={<ContentDetail />} />
           <Route path="/watch/:contentId" element={<Watch />} />
           <Route path="/watchlist" element={<Watchlist />} />
