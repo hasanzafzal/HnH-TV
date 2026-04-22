@@ -104,8 +104,8 @@
 .detail-meta span {
   display: inline-block;
   padding: 5px 10px;
-  background-color: rgba(229, 9, 20, 0.2);
-  border: 1px solid #e50914;
+  background-color: rgba(255, 215, 0, 0.1);
+  border: 1px solid #FFD700;
   border-radius: 4px;
   font-size: 13px;
   color: #ffd700;
@@ -126,7 +126,7 @@
   font-size: 16px;
   font-weight: 700;
   margin: 0 0 10px 0;
-  color: #e50914;
+  color: #FFD700;
 }
 
 .detail-section p {

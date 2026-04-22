@@ -4,15 +4,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(0, 0, 0, 0.8));
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(0, 0, 0, 0.9));
   padding: 20px;
 }
 
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background-color: rgba(20, 20, 20, 0.9);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  background-color: rgba(0, 20, 10, 0.95);
+  border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 8px;
   padding: 40px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -26,7 +26,7 @@
 .auth-header h1 {
   font-size: 32px;
   margin: 0 0 10px 0;
-  color: #e50914;
+  color: #FFD700;
   font-weight: 900;
 }
 
@@ -75,8 +75,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #e50914;
-  box-shadow: 0 0 8px rgba(229, 9, 20, 0.3);
+  border-color: #FFD700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
 }
 
 .form-group input::placeholder {
@@ -102,14 +102,14 @@
 }
 
 .link {
-  color: #e50914;
+  color: #FFD700;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: #ff4444;
+  color: #FFC700;
   text-decoration: underline;
 }
 
@@ -119,7 +119,7 @@
 }
 
 .explore-hero {
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(0, 0, 0, 0.8));
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.9));
   padding: 60px 20px;
   text-align: center;
 }
@@ -146,8 +146,8 @@
 }
 
 .filters-sidebar {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  background-color: rgba(0, 80, 45, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 8px;
   padding: 25px;
   height: fit-content;
@@ -158,7 +158,7 @@
 .filters-sidebar h3 {
   margin: 0 0 25px 0;
   font-size: 18px;
-  color: #e50914;
+  color: #FFD700;
   font-weight: 700;
 }
 
@@ -183,7 +183,7 @@
 .filter-select {
   padding: 10px 12px;
   background-color: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   color: white;
   border-radius: 4px;
   font-size: 13px;
@@ -193,8 +193,8 @@
 .filter-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: #e50914;
-  box-shadow: 0 0 8px rgba(229, 9, 20, 0.3);
+  border-color: #FFD700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
 }
 
 .filter-input::placeholder {
@@ -249,7 +249,7 @@
   gap: 20px;
   margin-top: 40px;
   padding: 30px 20px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 80, 45, 0.1);
   border-radius: 8px;
 }
 
@@ -268,8 +268,8 @@
 .no-results {
   text-align: center;
   padding: 80px 40px;
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 2px dashed rgba(229, 9, 20, 0.2);
+  background-color: rgba(0, 80, 45, 0.05);
+  border: 2px dashed rgba(255, 215, 0, 0.2);
   border-radius: 8px;
 }
 

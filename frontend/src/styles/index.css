@@ -25,7 +25,7 @@ body {
 .App {
   text-align: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+  background: linear-gradient(135deg, #000000 0%, #00502D 100%);
   color: #fff;
 }
 
@@ -36,7 +36,7 @@ body {
   min-height: 100vh;
   font-size: 24px;
   color: #fff;
-  background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+  background: linear-gradient(135deg, #000000 0%, #00502D 100%);
   font-weight: 600;
 }
 
@@ -54,12 +54,13 @@ body {
 }
 
 .btn-primary {
-  background-color: #e50914;
-  color: white;
+  background-color: #FFD700;
+  color: #000000;
+  font-weight: 700;
 }
 
 .btn-primary:hover {
-  background-color: #c40812;
+  background-color: #FFC700;
   transform: scale(1.05);
 }
 
