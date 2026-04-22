@@ -1,8 +1,6 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
 
 // Load environment variables
 dotenv.config();
@@ -15,17 +13,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-const connectDB = require('./config/database');
+const connectDB = require('../config/database');
 connectDB();
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const contentRoutes = require('./routes/content');
-const genreRoutes = require('./routes/genre');
-const watchlistRoutes = require('./routes/watchlist');
-const reviewRoutes = require('./routes/review');
-const watchHistoryRoutes = require('./routes/watchHistory');
-const subscriptionRoutes = require('./routes/subscription');
+const authRoutes = require('../routes/auth');
+const contentRoutes = require('../routes/content');
+const genreRoutes = require('../routes/genre');
+const watchlistRoutes = require('../routes/watchlist');
+const reviewRoutes = require('../routes/review');
+const watchHistoryRoutes = require('../routes/watchHistory');
+const subscriptionRoutes = require('../routes/subscription');
+const errorHandler = require('../middleware/errorHandler');
 
 // Routes
 app.get('/', (req, res) => {
@@ -47,10 +46,7 @@ app.use('/api/watch-history', watchHistoryRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 // 404 handler
 app.use((req, res) => {

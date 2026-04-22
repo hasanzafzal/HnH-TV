@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
 
 // Pages
 import Home from './pages/Home';
@@ -14,13 +13,14 @@ import NotFound from './pages/NotFound';
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     // Check API connectivity
-    fetch('http://localhost:5000/api/health')
+    fetch(`${apiBaseUrl}/health`)
       .then(() => setLoading(false))
       .catch(() => setLoading(false));
-  }, []);
+  }, [apiBaseUrl]);
 
   if (loading) {
     return <div className="loading">Initializing HnH TV...</div>;
