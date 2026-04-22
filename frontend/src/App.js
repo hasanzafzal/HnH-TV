@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Pages
@@ -15,19 +15,23 @@ import Explore from './pages/Explore';
 import NotFound from './pages/NotFound';
 
 function App() {
-  const [loading, setLoading] = useState(true);
   const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
-    // Check API connectivity
-    fetch(`${apiBaseUrl}/health`)
-      .then(() => setLoading(false))
-      .catch(() => setLoading(false));
-  }, [apiBaseUrl]);
+    // Health check in background (non-blocking)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
 
-  if (loading) {
-    return <div className="loading">Initializing HnH TV...</div>;
-  }
+    fetch(`${apiBaseUrl}/health`, { signal: controller.signal })
+      .then(() => console.log('✓ API connected'))
+      .catch((error) => console.warn('⚠ API unreachable:', error.message))
+      .finally(() => clearTimeout(timeout));
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [apiBaseUrl]);
 
   return (
     <Router>
