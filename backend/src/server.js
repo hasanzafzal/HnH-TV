@@ -13,18 +13,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-const connectDB = require('../config/database');
+const connectDB = require('./config/database');
 connectDB();
 
 // Import routes
-const authRoutes = require('../routes/auth');
-const contentRoutes = require('../routes/content');
-const genreRoutes = require('../routes/genre');
-const watchlistRoutes = require('../routes/watchlist');
-const reviewRoutes = require('../routes/review');
-const watchHistoryRoutes = require('../routes/watchHistory');
-const subscriptionRoutes = require('../routes/subscription');
-const errorHandler = require('../middleware/errorHandler');
+const authRoutes = require('./routes/auth');
+const contentRoutes = require('./routes/content');
+const genreRoutes = require('./routes/genre');
+const watchlistRoutes = require('./routes/watchlist');
+const reviewRoutes = require('./routes/review');
+const watchHistoryRoutes = require('./routes/watchHistory');
+const subscriptionRoutes = require('./routes/subscription');
+const downloadRoutes = require('./routes/download');
+const errorHandler = require('./middleware/errorHandler');
 
 // Routes
 app.get('/', (req, res) => {
@@ -44,6 +45,7 @@ app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/watch-history', watchHistoryRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/downloads', downloadRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

@@ -9,19 +9,21 @@ const {
   searchContent,
   getTrendingContent,
   getContentByGenre,
+  advancedSearch,
 } = require('../controllers/contentController');
-const { protect } = require('../middleware/auth');
+const { protect, adminOnly } = require('../middleware/auth');
 
 // Public routes
 router.get('/', getAllContent);
 router.get('/trending', getTrendingContent);
 router.get('/genre/:genreId', getContentByGenre);
 router.get('/search/:query', searchContent);
+router.get('/advanced-search', advancedSearch);
 router.get('/:id', getContentById);
 
 // Admin routes (protected)
-router.post('/', protect, createContent);
-router.put('/:id', protect, updateContent);
-router.delete('/:id', protect, deleteContent);
+router.post('/', protect, adminOnly, createContent);
+router.put('/:id', protect, adminOnly, updateContent);
+router.delete('/:id', protect, adminOnly, deleteContent);
 
 module.exports = router;
