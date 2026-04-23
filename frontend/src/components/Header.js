@@ -87,7 +87,7 @@ function Header() {
               <Link to="/login" className="btn btn-secondary">
                 Login
               </Link>
-              <Link to="/register" className="btn btn-primary">
+              <Link to="/signup" className="btn btn-primary">
                 Sign Up
               </Link>
             </>

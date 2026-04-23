@@ -59,6 +59,15 @@ const ContentSchema = new mongoose.Schema({
   },
   language: [String],
   subtitles: [String],
+  downloadable: {
+    type: Boolean,
+    default: true,
+  },
+  qualityOptions: {
+    type: [String],
+    enum: ['480p', '720p', '1080p', '4K'],
+    default: ['720p', '1080p'],
+  },
   quality: {
     type: String,
     enum: ['240p', '480p', '720p', '1080p', '4K'],

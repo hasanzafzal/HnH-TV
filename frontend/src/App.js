@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
 
 // Pages
 import Home from './pages/Home';
@@ -10,27 +9,38 @@ import Watchlist from './pages/Watchlist';
 import Search from './pages/Search';
 import Profile from './pages/Profile';
 import Subscription from './pages/Subscription';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Explore from './pages/Explore';
 import NotFound from './pages/NotFound';
 
 function App() {
-  const [loading, setLoading] = useState(true);
+  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
-    // Check API connectivity
-    fetch('http://localhost:5000/api/health')
-      .then(() => setLoading(false))
-      .catch(() => setLoading(false));
-  }, []);
+    // Health check in background (non-blocking)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
 
-  if (loading) {
-    return <div className="loading">Initializing HnH TV...</div>;
-  }
+    fetch(`${apiBaseUrl}/health`, { signal: controller.signal })
+      .then(() => console.log('✓ API connected'))
+      .catch((error) => console.warn('⚠ API unreachable:', error.message))
+      .finally(() => clearTimeout(timeout));
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [apiBaseUrl]);
 
   return (
     <Router>
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/explore" element={<Explore />} />
           <Route path="/detail/:contentId" element={<ContentDetail />} />
           <Route path="/watch/:contentId" element={<Watch />} />
           <Route path="/watchlist" element={<Watchlist />} />

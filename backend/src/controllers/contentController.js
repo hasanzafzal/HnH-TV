@@ -171,3 +171,110 @@ exports.getContentByGenre = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// @desc Advanced search with filters
+// @route GET /api/content/advanced-search
+// @access Public
+exports.advancedSearch = async (req, res) => {
+  try {
+    const {
+      query,
+      genre,
+      type,
+      minRating,
+      maxRating,
+      minYear,
+      maxYear,
+      language,
+      ageRating,
+      sortBy = '-rating',
+      limit = 20,
+      page = 1,
+    } = req.query;
+
+    const filter = { isActive: true };
+
+    // Text search
+    if (query) {
+      filter.$or = [
+        { title: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+        { cast: { $regex: query, $options: 'i' } },
+        { directors: { $regex: query, $options: 'i' } },
+      ];
+    }
+
+    // Content type filter
+    if (type) {
+      filter.contentType = type;
+    }
+
+    // Genre filter
+    if (genre) {
+      filter.genre = genre;
+    }
+
+    // Rating filter
+    if (minRating || maxRating) {
+      filter.rating = {};
+      if (minRating) filter.rating.$gte = parseFloat(minRating);
+      if (maxRating) filter.rating.$lte = parseFloat(maxRating);
+    }
+
+    // Release year filter
+    if (minYear || maxYear) {
+      filter.releaseDate = {};
+      if (minYear) {
+        const startDate = new Date(`${minYear}-01-01`);
+        filter.releaseDate.$gte = startDate;
+      }
+      if (maxYear) {
+        const endDate = new Date(`${maxYear}-12-31`);
+        filter.releaseDate.$lte = endDate;
+      }
+    }
+
+    // Language filter
+    if (language) {
+      filter.language = language;
+    }
+
+    // Age rating filter
+    if (ageRating) {
+      filter.ageRating = ageRating;
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * parseInt(limit);
+
+    // Execute query
+    const content = await Content.find(filter)
+      .populate('genre', 'name')
+      .sort(sortBy)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get total count for pagination
+    const total = await Content.countDocuments(filter);
+
+    res.status(200).json({
+      success: true,
+      count: content.length,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)),
+      data: content,
+      filters: {
+        query: query || null,
+        genre: genre || null,
+        type: type || null,
+        ratingRange: minRating || maxRating ? { min: minRating, max: maxRating } : null,
+        yearRange: minYear || maxYear ? { min: minYear, max: maxYear } : null,
+        language: language || null,
+        ageRating: ageRating || null,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

@@ -7,15 +7,15 @@ const {
   updateGenre,
   deleteGenre,
 } = require('../controllers/genreController');
-const { protect } = require('../middleware/auth');
+const { protect, adminOnly } = require('../middleware/auth');
 
 // Public routes
 router.get('/', getAllGenres);
 router.get('/:id', getGenreById);
 
 // Admin routes (protected)
-router.post('/', protect, createGenre);
-router.put('/:id', protect, updateGenre);
-router.delete('/:id', protect, deleteGenre);
+router.post('/', protect, adminOnly, createGenre);
+router.put('/:id', protect, adminOnly, updateGenre);
+router.delete('/:id', protect, adminOnly, deleteGenre);
 
 module.exports = router;

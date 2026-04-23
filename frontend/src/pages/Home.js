@@ -10,7 +10,7 @@ function Home() {
   const [trendingContent, setTrendingContent] = useState([]);
   const [newReleases, setNewReleases] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchContent();
@@ -18,20 +18,18 @@ function Home() {
 
   const fetchContent = async () => {
     try {
-      setLoading(true);
-
       // Fetch trending
       const trendingRes = await apiClient.get('/content/trending');
-      setTrendingContent(trendingRes.data.data);
+      setTrendingContent(trendingRes.data.data || []);
 
       // Fetch all content
       const allRes = await apiClient.get('/content?limit=50');
-      setNewReleases(allRes.data.data.slice(0, 20));
-      setPopularMovies(allRes.data.data.slice(20, 40));
-
-      setLoading(false);
+      setNewReleases((allRes.data.data || []).slice(0, 20));
+      setPopularMovies((allRes.data.data || []).slice(20, 40));
     } catch (error) {
-      console.error('Error fetching content:', error);
+      console.warn('Content fetch failed (expected without DB):', error.message);
+      // Continue anyway - show empty state
+    } finally {
       setLoading(false);
     }
   };
