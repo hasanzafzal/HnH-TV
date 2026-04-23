@@ -204,7 +204,7 @@ const AdminPanel = () => {
 
   const handleBulkImportLinks = async () => {
     if (!bulkLinksInput.trim()) {
-      alert('Please enter content links');
+      alert('Please enter OneDrive content links');
       return;
     }
     
@@ -223,10 +223,17 @@ const AdminPanel = () => {
       let importedCount = 0;
 
       for (const link of links) {
-        const isGoogleDrive = link.includes('drive.google.com');
-        const videoUrl = isGoogleDrive 
-          ? link.includes('id=') ? link : `https://drive.google.com/uc?id=${link.split('/d/')[1]?.split('/')[0]}`
-          : link;
+        // Convert OneDrive sharing links to direct stream URLs
+        let videoUrl = link;
+        
+        if (link.includes('1drv.ms')) {
+          // Convert short OneDrive link to streaming URL
+          videoUrl = link.endsWith('?download=1') ? link : `${link}?download=1`;
+        } else if (link.includes('onedrive.live.com')) {
+          // Handle full OneDrive URLs
+          videoUrl = link.includes('embed') ? link.replace('embed', 'download') : link;
+        }
+        // Otherwise use the link as-is (for direct URLs or other sources)
 
         await api.post('/content', {
           title: `Content - ${new Date().getTime()}`,
@@ -286,10 +293,20 @@ const AdminPanel = () => {
     }
   };
 
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
+  };
+
   return (
     <div className="admin-panel">
       <div className="admin-header">
-        <h1>📺 Admin Panel</h1>
+        <div className="admin-header-left">
+          <h1>📺 Admin Panel</h1>
+        </div>
         <div className="tab-buttons">
           <button
             className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
@@ -310,6 +327,13 @@ const AdminPanel = () => {
             💳 Subscriptions ({subscriptions.length})
           </button>
         </div>
+        <button 
+          className="btn-logout"
+          onClick={handleLogout}
+          title="Logout from admin panel"
+        >
+          🚪 Logout
+        </button>
       </div>
 
       {/* CONTENT TAB */}
@@ -318,7 +342,7 @@ const AdminPanel = () => {
           <div className="bulk-import-section">
             <h3>🔗 Bulk Import Links</h3>
             <textarea
-              placeholder="Paste Google Drive links or video URLs (one per line)&#10;Examples:&#10;https://drive.google.com/uc?id=FILE_ID&#10;https://example.com/video.mp4"
+              placeholder="Paste OneDrive links or video URLs (one per line)&#10;Examples:&#10;https://1drv.ms/v/s!FILE_ID&#10;https://example.com/video.mp4"
               value={bulkLinksInput}
               onChange={(e) => setBulkLinksInput(e.target.value)}
               rows="6"
@@ -616,8 +640,8 @@ const AdminPanel = () => {
           </div>
         )}
       </div>
-    </>
-    )}
+      </>
+      )}
 
       {/* USERS TAB */}
       {activeTab === 'users' && (

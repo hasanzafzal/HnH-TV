@@ -9,8 +9,8 @@ function Account() {
   const navigate = useNavigate();
   const user = getUser();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: user?.name || '',
+    email: user?.email || '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -25,11 +25,7 @@ function Account() {
       navigate('/login');
       return;
     }
-    setFormData({
-      ...formData,
-      name: user.name || '',
-      email: user.email || '',
-    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
 
   const handleChange = (e) => {

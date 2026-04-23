@@ -386,4 +386,35 @@
   .explore-hero-content p {
     font-size: 14px;
   }
+
+  .auth-container .logo {
+    font-size: 18px;
+  }
+}
+
+/* Logo on Auth Pages */
+.auth-container {
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 60px;
+}
+
+.auth-container .logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  font-weight: 900;
+  color: #FFD700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 10px 15px;
+  border-radius: 6px;
+}
+
+.auth-container .logo:hover {
+  color: #FFC700;
+  background: rgba(255, 215, 0, 0.1);
+  transform: scale(1.05);
 }

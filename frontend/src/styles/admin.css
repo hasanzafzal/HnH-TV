@@ -1,7 +1,7 @@
-/* Admin Panel Styles */
+/* Admin Panel Styles - Aston Martin F1 2026 Color Scheme */
 .admin-panel {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background: linear-gradient(135deg, #000000 0%, #00502D 100%);
   padding: 2rem;
   color: white;
 }
@@ -12,18 +12,24 @@
   align-items: center;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 12px;
   backdrop-filter: blur(10px);
   flex-wrap: wrap;
   gap: 1rem;
 }
 
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;
+}
+
 .admin-header h1 {
   font-size: 2rem;
   margin: 0;
-  background: linear-gradient(135deg, #e50914, #ff6b6b);
+  background: linear-gradient(135deg, #FFD700, #FFC700);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -31,10 +37,28 @@
 }
 
 .admin-header h2 {
-  color: #ffd700;
+  color: #FFD700;
   margin: 0;
   flex: 1;
   font-size: 1.3rem;
+}
+
+.btn-logout {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #FFFFFF;
 }
 
 .tab-buttons {
@@ -45,8 +69,8 @@
 
 .tab-btn {
   padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(229, 9, 20, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 6px;
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
@@ -55,20 +79,21 @@
 }
 
 .tab-btn:hover {
-  background: rgba(229, 9, 20, 0.2);
-  border-color: #e50914;
-  color: white;
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FFD700;
+  color: #FFFFFF;
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #e50914, #ff6b6b);
-  border-color: #e50914;
-  color: white;
+  background: linear-gradient(135deg, #FFD700, #FFC700);
+  border-color: #FFD700;
+  color: #000000;
+  font-weight: 700;
 }
 
 .bulk-import-section {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -76,17 +101,17 @@
 }
 
 .bulk-import-section h3 {
-  color: #ffd700;
+  color: #FFD700;
   margin-top: 0;
 }
 
 .bulk-import-textarea {
   width: 100%;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(229, 9, 20, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 6px;
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   resize: vertical;
@@ -98,8 +123,9 @@
 
 .bulk-import-textarea:focus {
   outline: none;
-  border-color: #e50914;
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.08);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
 }
 
 .bulk-import-actions {
@@ -109,19 +135,19 @@
 }
 
 .btn-import {
-  background: linear-gradient(135deg, #00d4ff, #0099ff);
-  color: white;
+  background: linear-gradient(135deg, #FFD700, #FFC700);
+  color: #000000;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .btn-import:hover {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(0, 153, 255, 0.3);
 }
 
 .btn-import:disabled {
@@ -131,8 +157,8 @@
 }
 
 .content-form {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -140,7 +166,7 @@
 }
 
 .content-form h2 {
-  color: #ffd700;
+  color: #FFD700;
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
 }
@@ -165,38 +191,38 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   font-size: 0.95rem;
-  color: #ffd700;
+  color: #FFD700;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(229, 9, 20, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 6px;
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.95rem;
   transition: all 0.3s ease;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #e50914;
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.08);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
 }
 
 .form-group select option {
-  background: #1a1a2e;
-  color: white;
+  background: rgba(0, 80, 45, 0.95);
+  color: #FFD700;
 }
 
 .form-group textarea {
@@ -231,24 +257,24 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #e50914, #ff6b6b);
-  color: white;
+  background: linear-gradient(135deg, #FFD700, #FFC700);
+  color: #000000;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(229, 9, 20, 0.3);
+  box-shadow: 0 8px 15px rgba(255, 215, 0, 0.2);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, #00d4ff, #0099ff);
-  color: white;
+  background: linear-gradient(135deg, #FFD700, #FFC700);
+  color: #000000;
   flex: 1;
 }
 
 .btn-success:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(0, 153, 255, 0.3);
+  box-shadow: 0 8px 15px rgba(255, 215, 0, 0.2);
 }
 
 .btn-success:disabled {
@@ -274,15 +300,16 @@
 }
 
 .contents-list {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 12px;
   padding: 2rem;
+  margin-bottom: 2rem;
   backdrop-filter: blur(10px);
 }
 
 .contents-list h2 {
-  color: #ffd700;
+  color: #FFD700;
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
 }
@@ -317,8 +344,8 @@
 
 .contents-table thead,
 .admin-table thead {
-  background: rgba(229, 9, 20, 0.1);
-  border-bottom: 2px solid rgba(229, 9, 20, 0.3);
+  background: rgba(255, 215, 0, 0.08);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.2);
 }
 
 .contents-table th,
@@ -326,7 +353,7 @@
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  color: #ffd700;
+  color: #FFD700;
   font-size: 0.95rem;
 }
 
@@ -343,7 +370,7 @@
 
 .contents-table tbody tr:hover,
 .admin-table tbody tr:hover {
-  background: rgba(229, 9, 20, 0.1);
+  background: rgba(255, 215, 0, 0.08);
 }
 
 .title-cell {
@@ -363,27 +390,27 @@
 }
 
 .badge-movie {
-  background: rgba(0, 153, 255, 0.2);
-  border: 1px solid rgba(0, 153, 255, 0.4);
-  color: #00d4ff;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .badge-tv_series {
-  background: rgba(255, 215, 0, 0.2);
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  color: #ffd700;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .badge-admin {
-  background: rgba(229, 9, 20, 0.2);
-  border: 1px solid rgba(229, 9, 20, 0.4);
-  color: #ff6b6b;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .badge-user {
-  background: rgba(0, 153, 255, 0.2);
-  border: 1px solid rgba(0, 153, 255, 0.4);
-  color: #00d4ff;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .badge-free,
@@ -404,9 +431,9 @@
 }
 
 .badge-basic {
-  background: rgba(100, 200, 255, 0.2);
-  border: 1px solid rgba(100, 200, 255, 0.4);
-  color: #64c8ff;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .badge-premium {
@@ -416,15 +443,15 @@
 }
 
 .badge-vip {
-  background: rgba(255, 100, 100, 0.2);
-  border: 1px solid rgba(255, 100, 100, 0.4);
-  color: #ff6464;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .users-section,
 .subscriptions-section {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(229, 9, 20, 0.2);
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 12px;
   padding: 2rem;
   backdrop-filter: blur(10px);
@@ -432,7 +459,7 @@
 
 .users-section h2,
 .subscriptions-section h2 {
-  color: #ffd700;
+  color: #FFD700;
   margin-top: 0;
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
@@ -440,21 +467,21 @@
 
 .plan-selector {
   padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(229, 9, 20, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 4px;
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   font-weight: 600;
 }
 
 .plan-selector option {
-  background: #1a1a2e;
-  color: white;
+  background: rgba(0, 80, 45, 0.95);
+  color: #FFD700;
 }
 
 .plan-selector:hover {
-  border-color: #e50914;
+  border-color: #FFD700;
 }
 
 .rating {
@@ -462,7 +489,7 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  color: #ffd700;
+  color: #FFD700;
 }
 
 .status {
@@ -474,15 +501,15 @@
 }
 
 .status.active {
-  background: rgba(0, 255, 100, 0.2);
-  border: 1px solid rgba(0, 255, 100, 0.4);
-  color: #00ff64;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .status.inactive {
-  background: rgba(255, 100, 100, 0.2);
-  border: 1px solid rgba(255, 100, 100, 0.4);
-  color: #ff6464;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .actions {
@@ -499,24 +526,24 @@
 }
 
 .btn-edit {
-  background: rgba(0, 153, 255, 0.2);
-  border: 1px solid rgba(0, 153, 255, 0.4);
-  color: #00d4ff;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #FFD700;
 }
 
 .btn-edit:hover {
-  background: rgba(0, 153, 255, 0.35);
+  background: rgba(255, 215, 0, 0.25);
   transform: translateY(-1px);
 }
 
 .btn-delete {
-  background: rgba(255, 100, 100, 0.2);
-  border: 1px solid rgba(255, 100, 100, 0.4);
-  color: #ff6464;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .btn-delete:hover {
-  background: rgba(255, 100, 100, 0.35);
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 
