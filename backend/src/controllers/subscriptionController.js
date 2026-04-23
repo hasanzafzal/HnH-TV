@@ -108,3 +108,45 @@ exports.getSubscriptionPlans = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// @desc Get all subscriptions (Admin only)
+// @route GET /api/subscription/admin/all
+// @access Private/Admin
+exports.getAllSubscriptions = async (req, res) => {
+  try {
+    const subscriptions = await Subscription.find({}).populate('user', 'email name createdAt');
+    res.status(200).json({ success: true, data: subscriptions });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// @desc Update user subscription (Admin only)
+// @route PUT /api/subscription/admin/:userId
+// @access Private/Admin
+exports.updateUserSubscription = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { plan, isActive } = req.body;
+
+    let subscription = await Subscription.findOne({ user: userId });
+
+    if (!subscription) {
+      subscription = await Subscription.create({
+        user: userId,
+        plan,
+        isActive: true,
+      });
+    } else {
+      subscription = await Subscription.findOneAndUpdate(
+        { user: userId },
+        { plan, isActive: isActive !== undefined ? isActive : subscription.isActive },
+        { new: true }
+      );
+    }
+
+    res.status(200).json({ success: true, data: subscription });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

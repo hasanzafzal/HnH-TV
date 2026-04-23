@@ -75,9 +75,7 @@ const AdminPanel = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/auth/users', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const response = await api.get('/auth/users');
       setUsers(response.data.data || response.data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -86,9 +84,7 @@ const AdminPanel = () => {
 
   const fetchSubscriptions = async () => {
     try {
-      const response = await api.get('/subscription', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const response = await api.get('/subscription/admin/all');
       setSubscriptions(response.data.data || response.data || []);
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
@@ -261,12 +257,9 @@ const AdminPanel = () => {
   const handleUpdateSubscription = async (userId, plan) => {
     try {
       setLoading(true);
-      await api.put('/subscription', {
-        userId,
+      await api.put(`/subscription/admin/${userId}`, {
         plan,
         isActive: true
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       alert('✓ Subscription updated');
       fetchSubscriptions();
@@ -282,9 +275,7 @@ const AdminPanel = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await api.delete(`/auth/users/${userId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        await api.delete(`/auth/users/${userId}`);
         alert('✓ User deleted');
         fetchUsers();
         fetchSubscriptions();
@@ -625,6 +616,121 @@ const AdminPanel = () => {
           </div>
         )}
       </div>
+    </>
+    )}
+
+      {/* USERS TAB */}
+      {activeTab === 'users' && (
+        <div className="users-section">
+          <h2>User Management</h2>
+          {loading && <p className="loading">Loading...</p>}
+          {users.length === 0 ? (
+            <p className="empty-state">No users found</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map(user => (
+                    <tr key={user._id}>
+                      <td>{user.email}</td>
+                      <td>{user.name}</td>
+                      <td>
+                        <span className={`badge badge-${user.role}`}>
+                          {user.role.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                      <td className="actions">
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDeleteUser(user._id)}
+                          title="Delete User"
+                        >
+                          🗑 Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SUBSCRIPTIONS TAB */}
+      {activeTab === 'subscriptions' && (
+        <div className="subscriptions-section">
+          <h2>Subscription Management</h2>
+          {loading && <p className="loading">Loading...</p>}
+          {subscriptions.length === 0 ? (
+            <p className="empty-state">No subscriptions found</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>User Email</th>
+                    <th>Plan</th>
+                    <th>Status</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Max Quality</th>
+                    <th>Max Screens</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subscriptions.map(sub => {
+                    const user = users.find(u => u._id === sub.user?._id || u._id === sub.user);
+                    return (
+                      <tr key={sub._id}>
+                        <td>{user?.email || sub.user?.email || 'Unknown'}</td>
+                        <td>
+                          <span className={`badge badge-${sub.plan}`}>
+                            {sub.plan.toUpperCase()}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status ${sub.isActive ? 'active' : 'inactive'}`}>
+                            {sub.isActive ? '✓ Active' : '✕ Inactive'}
+                          </span>
+                        </td>
+                        <td>{new Date(sub.startDate).toLocaleDateString()}</td>
+                        <td>{sub.endDate ? new Date(sub.endDate).toLocaleDateString() : '—'}</td>
+                        <td>{sub.maxQuality}</td>
+                        <td>{sub.maxScreens}</td>
+                        <td className="actions">
+                          <select
+                            className="plan-selector"
+                            defaultValue={sub.plan}
+                            onChange={(e) => handleUpdateSubscription(sub.user?._id || sub.user, e.target.value)}
+                          >
+                            <option value={sub.plan}>---</option>
+                            <option value="free">Free</option>
+                            <option value="basic">Basic</option>
+                            <option value="premium">Premium</option>
+                            <option value="vip">VIP</option>
+                          </select>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

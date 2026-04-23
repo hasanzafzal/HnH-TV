@@ -91,7 +91,7 @@ function Subscription() {
             <div key={plan.name} className={`plan-card ${currentPlan?.plan === plan.name ? 'active' : ''}`}>
               <h3>{plan.name}</h3>
               <div className="price">
-                <span className="amount">₹{plan.price}</span>
+                <span className="amount">${plan.price}</span>
                 <span className="period">/month</span>
               </div>
 
