@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-const connectDB = require('./config/database');
+const connectDB = require('../config/database');
 connectDB();
 
 // Import routes
