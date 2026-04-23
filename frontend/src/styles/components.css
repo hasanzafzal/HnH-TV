@@ -127,6 +127,21 @@
   background-color: #e50914;
 }
 
+.dropdown-divider {
+  height: 1px;
+  background-color: #e50914;
+  margin: 5px 0;
+}
+
+.admin-link {
+  color: #ffd700;
+  font-weight: 600;
+}
+
+.admin-link:hover {
+  background-color: rgba(255, 215, 0, 0.2);
+}
+
 /* Video Card Styles */
 .video-card {
   background-color: rgba(0, 0, 0, 0.7);

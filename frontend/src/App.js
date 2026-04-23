@@ -12,6 +12,7 @@ import Subscription from './pages/Subscription';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Explore from './pages/Explore';
+import AdminPanel from './pages/AdminPanel';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/explore" element={<Explore />} />
+          <Route path="/admin" element={<AdminPanel />} />
           <Route path="/detail/:contentId" element={<ContentDetail />} />
           <Route path="/watch/:contentId" element={<Watch />} />
           <Route path="/watchlist" element={<Watchlist />} />
