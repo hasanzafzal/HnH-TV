@@ -4,6 +4,8 @@ import '../styles/components.css';
 function VideoCard({ content, onWatchClick, onAddWatchlist }) {
   const [isHovered, setIsHovered] = useState(false);
 
+  if (!content) return null;
+
   return (
     <div
       className="video-card"
