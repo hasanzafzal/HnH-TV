@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import VideoPlayer from '../components/VideoPlayer';
 import '../styles/pages.css';
@@ -8,9 +8,14 @@ import { getUser } from '../utils/storage';
 
 function Watch() {
   const { contentId } = useParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const user = getUser();
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const seasonNum = parseInt(searchParams.get('season')) || null;
+  const episodeNum = parseInt(searchParams.get('episode')) || null;
 
   const fetchContent = useCallback(async () => {
     try {
@@ -39,20 +44,113 @@ function Watch() {
   if (loading) return <div className="loading">Loading...</div>;
   if (!content) return <div className="error">Content not found</div>;
 
+  // Determine what to play
+  let videoUrl = content.videoUrl;
+  let playingTitle = content.title;
+  let currentSeason = null;
+  let currentEpisode = null;
+  let allEpisodes = [];
+  let currentEpIndex = -1;
+
+  const isTvSeries = content.contentType === 'tv_series' && content.seasons && content.seasons.length > 0;
+
+  if (isTvSeries && seasonNum && episodeNum) {
+    currentSeason = content.seasons.find(s => s.seasonNumber === seasonNum);
+    if (currentSeason) {
+      currentEpisode = currentSeason.episodes.find(e => e.episodeNumber === episodeNum);
+      if (currentEpisode) {
+        videoUrl = currentEpisode.videoUrl;
+        playingTitle = `${content.title} — S${seasonNum}E${episodeNum}: ${currentEpisode.title}`;
+      }
+
+      // Build flat list for next/prev navigation
+      content.seasons.forEach(s => {
+        s.episodes
+          .sort((a, b) => a.episodeNumber - b.episodeNumber)
+          .forEach(ep => {
+            allEpisodes.push({ seasonNumber: s.seasonNumber, ...ep });
+          });
+      });
+      currentEpIndex = allEpisodes.findIndex(
+        ep => ep.seasonNumber === seasonNum && ep.episodeNumber === episodeNum
+      );
+    }
+  }
+
+  const handlePrevEpisode = () => {
+    if (currentEpIndex > 0) {
+      const prev = allEpisodes[currentEpIndex - 1];
+      navigate(`/watch/${contentId}?season=${prev.seasonNumber}&episode=${prev.episodeNumber}`);
+    }
+  };
+
+  const handleNextEpisode = () => {
+    if (currentEpIndex < allEpisodes.length - 1) {
+      const next = allEpisodes[currentEpIndex + 1];
+      navigate(`/watch/${contentId}?season=${next.seasonNumber}&episode=${next.episodeNumber}`);
+    }
+  };
+
   return (
     <div className="watch-page">
       <Header />
       <div className="player-container">
         <VideoPlayer
-          videoUrl={content.videoUrl}
-          title={content.title}
-          duration={content.duration}
+          videoUrl={videoUrl}
+          title={playingTitle}
+          duration={currentEpisode?.duration || content.duration}
         />
       </div>
 
       <div className="watch-info">
-        <h1>{content.title}</h1>
+        <h1>{playingTitle}</h1>
         <p>{content.description}</p>
+
+        {/* Episode navigation for TV series */}
+        {isTvSeries && currentEpisode && (
+          <div className="episode-navigation">
+            <button
+              className="btn btn-secondary"
+              onClick={handlePrevEpisode}
+              disabled={currentEpIndex <= 0}
+            >
+              ◀ Previous Episode
+            </button>
+            <span className="episode-current">
+              Season {seasonNum}, Episode {episodeNum}
+            </span>
+            <button
+              className="btn btn-secondary"
+              onClick={handleNextEpisode}
+              disabled={currentEpIndex >= allEpisodes.length - 1}
+            >
+              Next Episode ▶
+            </button>
+          </div>
+        )}
+
+        {/* Episode list for current season */}
+        {isTvSeries && currentSeason && (
+          <div className="watch-episode-list">
+            <h3>{currentSeason.title || `Season ${currentSeason.seasonNumber}`}</h3>
+            <div className="watch-episodes">
+              {currentSeason.episodes
+                .sort((a, b) => a.episodeNumber - b.episodeNumber)
+                .map(ep => (
+                  <div
+                    key={ep.episodeNumber}
+                    className={`watch-ep-item ${ep.episodeNumber === episodeNum ? 'active' : ''}`}
+                    onClick={() => navigate(`/watch/${contentId}?season=${seasonNum}&episode=${ep.episodeNumber}`)}
+                  >
+                    <span className="watch-ep-num">E{ep.episodeNumber}</span>
+                    <span className="watch-ep-title">{ep.title}</span>
+                    {ep.duration > 0 && <span className="watch-ep-dur">{ep.duration}m</span>}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
         {content.cast.length > 0 && (
           <p><strong>Cast:</strong> {content.cast.join(', ')}</p>
         )}
