@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Logo from '../components/Logo';
 import apiClient from '../utils/api';
 
 const Signup = () => {
@@ -47,8 +48,10 @@ const Signup = () => {
   };
 
   return (
-    <div className="auth-container signup-page">
-      <div className="auth-card">
+    <>
+      <Logo />
+      <div className="auth-container signup-page">
+        <div className="auth-card">
         <div className="auth-header">
           <h1>HnH TV</h1>
           <p>Create Your Account</p>
@@ -123,7 +126,8 @@ const Signup = () => {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

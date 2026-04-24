@@ -76,6 +76,14 @@ function Header() {
                   <Link to="/subscription" className="dropdown-link">
                     Subscription
                   </Link>
+                  {user.role === 'admin' && (
+                    <>
+                      <div className="dropdown-divider"></div>
+                      <Link to="/admin" className="dropdown-link admin-link">
+                        ⚙️ Admin Panel
+                      </Link>
+                    </>
+                  )}
                   <button className="logout-btn" onClick={handleLogout}>
                     Logout
                   </button>

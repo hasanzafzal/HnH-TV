@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 // Load environment variables
 dotenv.config();
@@ -60,6 +61,32 @@ app.use((req, res) => {
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use.`);
+    process.exit(1);
+  }
+
+  console.error('Server error:', error);
+  process.exit(1);
+});
+
+const gracefulShutdown = (signal) => {
+  server.close(async () => {
+    try {
+      await mongoose.connection.close();
+    } catch (error) {
+      console.error('Error closing MongoDB connection:', error);
+    } finally {
+      process.kill(process.pid, signal);
+    }
+  });
+};
+
+process.once('SIGUSR2', () => gracefulShutdown('SIGUSR2'));
+process.once('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.once('SIGINT', () => gracefulShutdown('SIGINT'));

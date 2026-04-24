@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Logo from '../components/Logo';
 import apiClient from '../utils/api';
 
 const Login = () => {
@@ -20,7 +21,13 @@ const Login = () => {
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        navigate('/');
+        
+        // Redirect admin users to admin panel, others to home
+        if (response.data.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -30,8 +37,10 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container login-page">
-      <div className="auth-card">
+    <>
+      <Logo />
+      <div className="auth-container login-page">
+        <div className="auth-card">
         <div className="auth-header">
           <h1>HnH TV</h1>
           <p>Welcome Back</p>
@@ -82,7 +91,8 @@ const Login = () => {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
