@@ -18,6 +18,7 @@ import About from './pages/About';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
 import Footer from './components/Footer';
+import Chatbot from './components/Chatbot';
 
 function App() {
   const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -59,6 +60,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
+        <Chatbot />
       </div>
     </Router>
   );

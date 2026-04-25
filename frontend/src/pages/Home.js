@@ -95,7 +95,7 @@ function Home() {
 
         {newReleases.length > 0 && (
           <CategorySlider
-            title="New Releases"
+            title="Latest on HnH TV"
             content={newReleases}
             onItemClick={handleWatchClick}
           />

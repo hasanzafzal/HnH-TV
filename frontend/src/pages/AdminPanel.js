@@ -35,21 +35,22 @@ const AdminPanel = () => {
   const [seasonsData, setSeasonsData] = useState([]);
   const [bulkLinksInput, setBulkLinksInput] = useState('');
 
-  useEffect(() => {
-    fetchContents();
-    fetchGenres();
-    fetchUsers();
-    fetchSubscriptions();
-    checkAdminAccess();
-  }, []);
-
-  const checkAdminAccess = async () => {
+  const checkAdminAccess = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.role !== 'admin') {
       navigate('/');
       alert('Admin access required');
     }
   };
+
+  useEffect(() => {
+    checkAdminAccess();
+    fetchContents();
+    fetchGenres();
+    fetchUsers();
+    fetchSubscriptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchContents = async () => {
     try {

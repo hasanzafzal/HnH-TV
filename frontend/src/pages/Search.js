@@ -77,7 +77,10 @@ function Search() {
             ))}
           </div>
         ) : (
-          <p className="empty-message">No results found for "{query}"</p>
+          <div className="empty-message">
+            <p>Sorry, looks like we currently don't have what you're looking for.</p>
+            <p>Chat with our <strong>AI assistant</strong> for recommendations and we'll probably have something here you'll like!</p>
+          </div>
         )}
       </div>
     </div>
