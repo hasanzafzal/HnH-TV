@@ -37,6 +37,9 @@ function Header() {
           <Link to="/explore" className="nav-link">
             Explore
           </Link>
+          <Link to="/about" className="nav-link">
+            About
+          </Link>
           {user && (
             <>
               <Link to="/watchlist" className="nav-link">
