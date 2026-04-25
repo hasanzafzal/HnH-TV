@@ -272,11 +272,9 @@ const Explore = () => {
                     className="grid-item"
                   >
                     <VideoCard
-                      id={content._id}
-                      title={content.title}
-                      poster={content.posterUrl}
-                      rating={content.rating}
-                      type={content.contentType}
+                      content={content}
+                      onWatchClick={(id) => window.location.href = `/watch/${id}`}
+                      onAddWatchlist={(id) => {}}
                     />
                   </Link>
                 ))}

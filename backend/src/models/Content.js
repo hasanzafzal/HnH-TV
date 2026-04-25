@@ -50,8 +50,42 @@ const ContentSchema = new mongoose.Schema({
   },
   videoUrl: {
     type: String,
-    required: true,
+    required: function() {
+      return this.contentType !== 'tv_series';
+    },
   },
+  seasons: [{
+    seasonNumber: {
+      type: Number,
+      required: true,
+    },
+    title: {
+      type: String,
+      default: '',
+    },
+    episodes: [{
+      episodeNumber: {
+        type: Number,
+        required: true,
+      },
+      title: {
+        type: String,
+        required: true,
+      },
+      videoUrl: {
+        type: String,
+        required: true,
+      },
+      duration: {
+        type: Number,
+        default: 0,
+      },
+      thumbnailUrl: {
+        type: String,
+        default: '',
+      },
+    }],
+  }],
   ageRating: {
     type: String,
     enum: ['G', 'PG', 'PG-13', 'R', 'NC-17', '18+'],

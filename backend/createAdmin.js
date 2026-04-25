@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const User = require('./src/models/User');
+require('dotenv').config();
 
 async function createAdmin() {
   try {
-    await mongoose.connect('mongodb+srv://huzaifakhawarm_db_user:cP31aO6g1SZAvnSY@cluster0.3s68luw.mongodb.net/?appName=Cluster0');
+    await mongoose.connect(process.env.MONGODB_URI);
     
     // Delete old user
     await User.deleteOne({ email: 'huzaifa@gmail.com' });

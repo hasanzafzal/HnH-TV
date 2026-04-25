@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -48,15 +49,26 @@ exports.login = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
-    // Check for user
+    // Check for user - explicitly select password field
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
+<<<<<<< HEAD
+    // Verify password using bcrypt directly if method doesn't exist
+    let isMatch = false;
+    if (typeof user.matchPassword === 'function') {
+      isMatch = await user.matchPassword(password);
+    } else {
+      // Fallback: use bcrypt directly
+      isMatch = await bcrypt.compare(password, user.password);
+    }
+=======
     // Check if password matches
-    const isMatch = await user.matchPassword(password);
+    const isMatch = await user.comparePassword(password);
+>>>>>>> 79ec28f9af48b5cef598cf6cc0d5f741975389f3
 
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -179,7 +191,7 @@ exports.changePassword = async (req, res) => {
     }
 
     // Check if current password is correct
-    const isMatch = await user.matchPassword(currentPassword);
+    const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Current password is incorrect' });
     }

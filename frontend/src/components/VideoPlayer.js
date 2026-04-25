@@ -1,107 +1,48 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import '../styles/components.css';
+
+/**
+ * Check if a URL is a OneDrive sharing link.
+ */
+function isOneDriveUrl(url) {
+  if (!url) return false;
+  return url.includes('1drv.ms') || url.includes('onedrive.live.com') || url.includes('sharepoint.com');
+}
+
+/**
+ * Convert a OneDrive sharing URL to a backend proxy stream URL.
+ */
+function getStreamUrl(url) {
+  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  return `${apiBase}/stream?url=${encodeURIComponent(url)}`;
+}
 
 function VideoPlayer({ videoUrl, title, duration = 0 }) {
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [fullscreen, setFullscreen] = useState(false);
 
-  const handlePlayPause = () => {
+  // Use the proxy URL for OneDrive links, direct URL otherwise
+  const effectiveUrl = isOneDriveUrl(videoUrl) ? getStreamUrl(videoUrl) : videoUrl;
+
+  // Ensure volume is set on mount
+  useEffect(() => {
     if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+      videoRef.current.volume = 1;
     }
-  };
-
-  const handleFullscreen = () => {
-    if (videoRef.current) {
-      if (!fullscreen) {
-        videoRef.current.requestFullscreen().catch((err) => {
-          alert(`Error attempting to enable fullscreen: ${err.message}`);
-        });
-      } else {
-        document.exitFullscreen();
-      }
-      setFullscreen(!fullscreen);
-    }
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
+  }, []);
 
   return (
     <div className="video-player-container">
       <div className="video-player">
         <video
           ref={videoRef}
-          onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
+          src={effectiveUrl}
+          controls
+          controlsList="nodownload"
+          preload="auto"
+          style={{ width: '100%', height: '100%', display: 'block' }}
         >
-          <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-
-        <div className="player-controls">
-          <div className="progress-bar">
-            <input
-              type="range"
-              min="0"
-              max={videoRef.current?.duration || 0}
-              value={currentTime}
-              onChange={(e) => {
-                if (videoRef.current) {
-                  videoRef.current.currentTime = e.target.value;
-                  setCurrentTime(e.target.value);
-                }
-              }}
-              className="progress-slider"
-            />
-          </div>
-
-          <div className="controls-bottom">
-            <button className="control-btn" onClick={handlePlayPause}>
-              {isPlaying ? '⏸' : '▶'}
-            </button>
-
-            <div className="time-display">
-              <span>{formatTime(currentTime)}</span>
-              <span> / </span>
-              <span>{formatTime(videoRef.current?.duration || 0)}</span>
-            </div>
-
-            <div className="volume-control">
-              <span>🔊</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={(e) => {
-                  setVolume(e.target.value);
-                  if (videoRef.current) {
-                    videoRef.current.volume = e.target.value;
-                  }
-                }}
-                className="volume-slider"
-              />
-            </div>
-
-            <button className="control-btn" onClick={handleFullscreen}>
-              {fullscreen ? '⛶' : '⛶'}
-            </button>
-          </div>
-        </div>
       </div>
       <h2>{title}</h2>
     </div>

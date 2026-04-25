@@ -103,7 +103,7 @@ const seedDatabase = async () => {
     console.log(`Created ${genres.length} genres`);
 
     // Create Users
-    const users = await User.insertMany([
+    const users = await User.create([
       {
         name: 'Admin User',
         email: 'admin@hnh-tv.com',

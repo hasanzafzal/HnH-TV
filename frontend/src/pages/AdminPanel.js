@@ -31,6 +31,7 @@ const AdminPanel = () => {
     language: 'English',
     qualityOptions: ['720p', '1080p'],
   });
+  const [seasonsData, setSeasonsData] = useState([]);
   const [bulkLinksInput, setBulkLinksInput] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
@@ -113,6 +114,61 @@ const AdminPanel = () => {
     }));
   };
 
+  const handleAddSeason = () => {
+    setSeasonsData(prev => [
+      ...prev,
+      { seasonNumber: prev.length + 1, title: `Season ${prev.length + 1}`, episodes: [] }
+    ]);
+  };
+
+  const handleRemoveSeason = (seasonIndex) => {
+    setSeasonsData(prev => prev.filter((_, i) => i !== seasonIndex));
+  };
+
+  const handleAddEpisode = (seasonIndex) => {
+    setSeasonsData(prev => {
+      const updated = [...prev];
+      const eps = updated[seasonIndex].episodes;
+      updated[seasonIndex] = {
+        ...updated[seasonIndex],
+        episodes: [
+          ...eps,
+          { episodeNumber: eps.length + 1, title: `Episode ${eps.length + 1}`, videoUrl: '', duration: 0 }
+        ]
+      };
+      return updated;
+    });
+  };
+
+  const handleRemoveEpisode = (seasonIndex, episodeIndex) => {
+    setSeasonsData(prev => {
+      const updated = [...prev];
+      updated[seasonIndex] = {
+        ...updated[seasonIndex],
+        episodes: updated[seasonIndex].episodes.filter((_, i) => i !== episodeIndex)
+      };
+      return updated;
+    });
+  };
+
+  const handleSeasonChange = (seasonIndex, field, value) => {
+    setSeasonsData(prev => {
+      const updated = [...prev];
+      updated[seasonIndex] = { ...updated[seasonIndex], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleEpisodeChange = (seasonIndex, episodeIndex, field, value) => {
+    setSeasonsData(prev => {
+      const updated = [...prev];
+      const episodes = [...updated[seasonIndex].episodes];
+      episodes[episodeIndex] = { ...episodes[episodeIndex], [field]: value };
+      updated[seasonIndex] = { ...updated[seasonIndex], episodes };
+      return updated;
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -124,6 +180,14 @@ const AdminPanel = () => {
         duration: parseInt(formData.duration) || 0,
         rating: parseFloat(formData.rating) || 0,
       };
+
+      // For TV series, include seasons data and remove videoUrl
+      if (formData.contentType === 'tv_series') {
+        payload.seasons = seasonsData;
+        if (!payload.videoUrl) {
+          delete payload.videoUrl;
+        }
+      }
 
       if (editingId) {
         await api.put(`/content/${editingId}`, payload);
@@ -157,11 +221,12 @@ const AdminPanel = () => {
       posterUrl: content.posterUrl,
       thumbnailUrl: content.thumbnailUrl,
       bannerUrl: content.bannerUrl || '',
-      videoUrl: content.videoUrl,
+      videoUrl: content.videoUrl || '',
       ageRating: content.ageRating,
       language: content.language.join(', '),
       qualityOptions: content.qualityOptions || ['720p', '1080p'],
     });
+    setSeasonsData(content.seasons || []);
     setEditingId(content._id);
     setShowForm(true);
   };
@@ -198,6 +263,7 @@ const AdminPanel = () => {
       language: 'English',
       qualityOptions: ['720p', '1080p'],
     });
+    setSeasonsData([]);
     setEditingId(null);
     setShowForm(false);
   };
@@ -507,17 +573,100 @@ const AdminPanel = () => {
                 />
               </div>
 
-              <div className="form-group full-width">
-                <label>Video URL *</label>
-                <input
-                  type="url"
-                  name="videoUrl"
-                  value={formData.videoUrl}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="https://drive.google.com/... or streaming URL"
-                />
-              </div>
+              {formData.contentType !== 'tv_series' ? (
+                <div className="form-group full-width">
+                  <label>Video URL *</label>
+                  <input
+                    type="url"
+                    name="videoUrl"
+                    value={formData.videoUrl}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="https://drive.google.com/... or streaming URL"
+                  />
+                </div>
+              ) : (
+                <div className="form-group full-width">
+                  <div className="seasons-manager">
+                    <div className="seasons-header">
+                      <label>📺 Seasons & Episodes</label>
+                      <button type="button" className="btn-add-season" onClick={handleAddSeason}>
+                        + Add Season
+                      </button>
+                    </div>
+
+                    {seasonsData.length === 0 && (
+                      <p className="seasons-empty">No seasons added yet. Click "Add Season" to start.</p>
+                    )}
+
+                    {seasonsData.map((season, sIdx) => (
+                      <div key={sIdx} className="season-block">
+                        <div className="season-header">
+                          <div className="season-title-row">
+                            <input
+                              type="number"
+                              value={season.seasonNumber}
+                              onChange={(e) => handleSeasonChange(sIdx, 'seasonNumber', parseInt(e.target.value) || 1)}
+                              className="season-number-input"
+                              min="1"
+                              title="Season number"
+                            />
+                            <input
+                              type="text"
+                              value={season.title}
+                              onChange={(e) => handleSeasonChange(sIdx, 'title', e.target.value)}
+                              placeholder="Season title"
+                              className="season-title-input"
+                            />
+                            <button type="button" className="btn-remove-season" onClick={() => handleRemoveSeason(sIdx)}>
+                              🗑 Remove Season
+                            </button>
+                          </div>
+                          <button type="button" className="btn-add-episode" onClick={() => handleAddEpisode(sIdx)}>
+                            + Add Episode
+                          </button>
+                        </div>
+
+                        {season.episodes.length === 0 && (
+                          <p className="episodes-empty">No episodes in this season.</p>
+                        )}
+
+                        {season.episodes.map((ep, eIdx) => (
+                          <div key={eIdx} className="episode-row">
+                            <span className="episode-number">E{ep.episodeNumber}</span>
+                            <input
+                              type="text"
+                              value={ep.title}
+                              onChange={(e) => handleEpisodeChange(sIdx, eIdx, 'title', e.target.value)}
+                              placeholder="Episode title"
+                              className="episode-title-input"
+                            />
+                            <input
+                              type="url"
+                              value={ep.videoUrl}
+                              onChange={(e) => handleEpisodeChange(sIdx, eIdx, 'videoUrl', e.target.value)}
+                              placeholder="Video URL (OneDrive direct link)"
+                              className="episode-url-input"
+                              required
+                            />
+                            <input
+                              type="number"
+                              value={ep.duration || ''}
+                              onChange={(e) => handleEpisodeChange(sIdx, eIdx, 'duration', parseInt(e.target.value) || 0)}
+                              placeholder="Min"
+                              className="episode-duration-input"
+                              title="Duration in minutes"
+                            />
+                            <button type="button" className="btn-remove-episode" onClick={() => handleRemoveEpisode(sIdx, eIdx)}>
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="form-group">
                 <label>Poster URL</label>

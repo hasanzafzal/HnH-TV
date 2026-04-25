@@ -41,6 +41,34 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
 
+// OneDrive video proxy - streams video from OneDrive sharing links
+const { resolveOneDriveUrl, proxyOneDriveStream, getCachedUrl, setCachedUrl } = require('./utils/onedriveProxy');
+
+app.get('/api/stream', async (req, res) => {
+  const { url: shareUrl } = req.query;
+  
+  if (!shareUrl) {
+    return res.status(400).json({ error: 'Missing url parameter' });
+  }
+
+  try {
+    // Check cache first
+    let downloadUrl = getCachedUrl(shareUrl);
+    
+    if (!downloadUrl) {
+      downloadUrl = await resolveOneDriveUrl(shareUrl);
+      setCachedUrl(shareUrl, downloadUrl);
+    }
+
+    await proxyOneDriveStream(req, res, downloadUrl);
+  } catch (error) {
+    console.error('Stream proxy error:', error.message);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to stream video: ' + error.message });
+    }
+  }
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/content', contentRoutes);

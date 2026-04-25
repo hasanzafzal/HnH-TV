@@ -16,6 +16,7 @@ function ContentDetail() {
   const [userRating, setUserRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedSeason, setSelectedSeason] = useState(0);
 
   const fetchContent = useCallback(async () => {
     try {
@@ -87,8 +88,15 @@ function ContentDetail() {
     navigate(`/watch/${contentId}`);
   };
 
+  const handleWatchEpisode = (seasonNum, episodeNum) => {
+    navigate(`/watch/${contentId}?season=${seasonNum}&episode=${episodeNum}`);
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (!content) return <div className="error">Content not found</div>;
+
+  const isTvSeries = content.contentType === 'tv_series' && content.seasons && content.seasons.length > 0;
+  const currentSeason = isTvSeries ? content.seasons[selectedSeason] : null;
 
   return (
     <div className="content-detail">
@@ -105,7 +113,7 @@ function ContentDetail() {
           
           <div className="detail-meta">
             <span className="rating">⭐ {content.rating}/10</span>
-            <span className="type">{content.contentType}</span>
+            <span className="type">{content.contentType === 'tv_series' ? 'TV Series' : 'Movie'}</span>
             <span className="year">{new Date(content.releaseDate).getFullYear()}</span>
             {content.duration && <span className="duration">{content.duration} min</span>}
           </div>
@@ -127,9 +135,11 @@ function ContentDetail() {
           )}
 
           <div className="action-buttons">
-            <button className="btn btn-primary" onClick={handleWatch}>
-              ▶ Watch Now
-            </button>
+            {!isTvSeries && (
+              <button className="btn btn-primary" onClick={handleWatch}>
+                ▶ Watch Now
+              </button>
+            )}
             <button
               className={`btn ${inWatchlist ? 'btn-added' : 'btn-secondary'}`}
               onClick={handleAddWatchlist}
@@ -137,6 +147,46 @@ function ContentDetail() {
               {inWatchlist ? '✓ In Watchlist' : '+ Watchlist'}
             </button>
           </div>
+
+          {/* Season/Episode Selector for TV Series */}
+          {isTvSeries && (
+            <div className="seasons-section">
+              <div className="season-tabs">
+                {content.seasons.map((season, idx) => (
+                  <button
+                    key={idx}
+                    className={`season-tab ${selectedSeason === idx ? 'active' : ''}`}
+                    onClick={() => setSelectedSeason(idx)}
+                  >
+                    {season.title || `Season ${season.seasonNumber}`}
+                  </button>
+                ))}
+              </div>
+
+              {currentSeason && (
+                <div className="episodes-list">
+                  {currentSeason.episodes
+                    .sort((a, b) => a.episodeNumber - b.episodeNumber)
+                    .map((ep) => (
+                      <div
+                        key={ep._id || ep.episodeNumber}
+                        className="episode-item"
+                        onClick={() => handleWatchEpisode(currentSeason.seasonNumber, ep.episodeNumber)}
+                      >
+                        <div className="episode-info">
+                          <span className="ep-number">E{ep.episodeNumber}</span>
+                          <span className="ep-title">{ep.title}</span>
+                        </div>
+                        <div className="episode-meta">
+                          {ep.duration > 0 && <span className="ep-duration">{ep.duration} min</span>}
+                          <span className="ep-play">▶ Play</span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {user && (
             <div className="review-form">
