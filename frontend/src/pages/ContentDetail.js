@@ -115,7 +115,15 @@ function ContentDetail() {
             <span className="rating">⭐ {content.rating}/10</span>
             <span className="type">{content.contentType === 'tv_series' ? 'TV Series' : 'Movie'}</span>
             <span className="year">{new Date(content.releaseDate).getFullYear()}</span>
-            {content.duration && <span className="duration">{content.duration} min</span>}
+            {content.contentType === 'tv_series' && content.seasons && content.seasons.length > 0
+              ? <span className="duration">{content.seasons.length} Season{content.seasons.length !== 1 ? 's' : ''}</span>
+              : content.duration && <span className="duration">{content.duration} min</span>
+            }
+            {content.genre && content.genre.length > 0 && (
+              content.genre.map(g => (
+                <span key={g._id || g} className="genre-tag">{g.name || g}</span>
+              ))
+            )}
           </div>
 
           <p className="description">{content.description}</p>

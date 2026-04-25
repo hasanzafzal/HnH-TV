@@ -831,3 +831,78 @@
   border-color: #FFD700;
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.15);
 }
+
+/* Genre Checkbox Dropdown */
+.genre-dropdown {
+  position: relative;
+}
+
+.genre-dropdown-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.genre-dropdown-btn:hover {
+  border-color: #FFD700;
+}
+
+.genre-dropdown-arrow {
+  font-size: 0.75rem;
+  color: #FFD700;
+  margin-left: 8px;
+}
+
+.genre-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: rgba(0, 40, 22, 0.97);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.genre-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.genre-checkbox-item:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.genre-checkbox-item input[type="checkbox"] {
+  accent-color: #FFD700;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.genre-dropdown-empty {
+  padding: 14px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+}
+

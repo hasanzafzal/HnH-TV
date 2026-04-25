@@ -7,6 +7,7 @@ const {
   getSubscriptionPlans,
   getAllSubscriptions,
   updateUserSubscription,
+  deleteUserSubscription,
 } = require('../controllers/subscriptionController');
 const { protect, adminOnly } = require('../middleware/auth');
 
@@ -21,5 +22,6 @@ router.delete('/', protect, cancelSubscription);
 // Admin routes
 router.get('/admin/all', protect, adminOnly, getAllSubscriptions);
 router.put('/admin/:userId', protect, adminOnly, updateUserSubscription);
+router.delete('/admin/:userId', protect, adminOnly, deleteUserSubscription);
 
 module.exports = router;

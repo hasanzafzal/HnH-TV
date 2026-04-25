@@ -11,6 +11,7 @@ const AdminPanel = () => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [genreDropdownOpen, setGenreDropdownOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -33,8 +34,6 @@ const AdminPanel = () => {
   });
   const [seasonsData, setSeasonsData] = useState([]);
   const [bulkLinksInput, setBulkLinksInput] = useState('');
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedSubscription, setSelectedSubscription] = useState(null);
 
   useEffect(() => {
     fetchContents();
@@ -67,7 +66,7 @@ const AdminPanel = () => {
 
   const fetchGenres = async () => {
     try {
-      const response = await api.get('/genre');
+      const response = await api.get('/genres');
       setGenres(response.data.data || []);
     } catch (error) {
       console.error('Error fetching genres:', error);
@@ -100,18 +99,15 @@ const AdminPanel = () => {
     }));
   };
 
-  const handleGenreChange = (e) => {
-    const options = e.target.options;
-    const selected = [];
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) {
-        selected.push(options[i].value);
+  const handleGenreToggle = (genreId) => {
+    setFormData(prev => {
+      const current = prev.genre || [];
+      if (current.includes(genreId)) {
+        return { ...prev, genre: current.filter(id => id !== genreId) };
+      } else {
+        return { ...prev, genre: [...current, genreId] };
       }
-    }
-    setFormData(prev => ({
-      ...prev,
-      genre: selected,
-    }));
+    });
   };
 
   const handleAddSeason = () => {
@@ -345,6 +341,57 @@ const AdminPanel = () => {
     }
   };
 
+  const handleToggleSubscription = async (userId, currentActive) => {
+    try {
+      setLoading(true);
+      const sub = subscriptions.find(s => (s.user?._id || s.user) === userId);
+      await api.put(`/subscription/admin/${userId}`, {
+        plan: sub?.plan || 'free',
+        isActive: !currentActive
+      });
+      alert(`✓ Subscription ${!currentActive ? 'activated' : 'deactivated'}`);
+      fetchSubscriptions();
+    } catch (error) {
+      console.error('Error toggling subscription:', error);
+      alert('Failed to toggle subscription');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSubscription = async (userId) => {
+    if (window.confirm('Are you sure you want to delete this subscription?')) {
+      try {
+        setLoading(true);
+        await api.delete(`/subscription/admin/${userId}`);
+        alert('✓ Subscription deleted');
+        fetchSubscriptions();
+      } catch (error) {
+        console.error('Error deleting subscription:', error);
+        alert('Failed to delete subscription');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleAssignSubscription = async (userId) => {
+    try {
+      setLoading(true);
+      await api.put(`/subscription/admin/${userId}`, {
+        plan: 'free',
+        isActive: true
+      });
+      alert('✓ Subscription assigned (Free plan)');
+      fetchSubscriptions();
+    } catch (error) {
+      console.error('Error assigning subscription:', error);
+      alert('Failed to assign subscription');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
@@ -535,20 +582,36 @@ const AdminPanel = () => {
 
               <div className="form-group full-width">
                 <label>Genres *</label>
-                <select
-                  multiple
-                  name="genre"
-                  value={formData.genre}
-                  onChange={handleGenreChange}
-                  size={Math.min(genres.length, 5)}
-                >
-                  {genres.map(genre => (
-                    <option key={genre._id} value={genre._id}>
-                      {genre.name}
-                    </option>
-                  ))}
-                </select>
-                <small>Hold Ctrl/Cmd to select multiple</small>
+                <div className="genre-dropdown">
+                  <button
+                    type="button"
+                    className="genre-dropdown-btn"
+                    onClick={() => setGenreDropdownOpen(!genreDropdownOpen)}
+                  >
+                    {formData.genre.length > 0
+                      ? genres.filter(g => formData.genre.includes(g._id)).map(g => g.name).join(', ')
+                      : 'Select genres...'}
+                    <span className="genre-dropdown-arrow">{genreDropdownOpen ? '▲' : '▼'}</span>
+                  </button>
+                  {genreDropdownOpen && (
+                    <div className="genre-dropdown-menu">
+                      {genres.length === 0 ? (
+                        <div className="genre-dropdown-empty">No genres available</div>
+                      ) : (
+                        genres.map(genre => (
+                          <label key={genre._id} className="genre-checkbox-item">
+                            <input
+                              type="checkbox"
+                              checked={formData.genre.includes(genre._id)}
+                              onChange={() => handleGenreToggle(genre._id)}
+                            />
+                            <span>{genre.name}</span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="form-group full-width">
@@ -845,6 +908,46 @@ const AdminPanel = () => {
         <div className="subscriptions-section">
           <h2>Subscription Management</h2>
           {loading && <p className="loading">Loading...</p>}
+
+          {/* Users without subscriptions */}
+          {(() => {
+            const subUserIds = subscriptions.map(s => s.user?._id || s.user);
+            const unsubscribed = users.filter(u => !subUserIds.includes(u._id));
+            if (unsubscribed.length === 0) return null;
+            return (
+              <div className="bulk-import-section" style={{ marginBottom: '1.5rem' }}>
+                <h3>⚡ Users Without Subscription</h3>
+                <div className="table-responsive">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {unsubscribed.map(u => (
+                        <tr key={u._id}>
+                          <td>{u.email}</td>
+                          <td>{u.name}</td>
+                          <td>
+                            <button
+                              className="btn-edit"
+                              onClick={() => handleAssignSubscription(u._id)}
+                            >
+                              + Assign Free Plan
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+
           {subscriptions.length === 0 ? (
             <p className="empty-state">No subscriptions found</p>
           ) : (
@@ -865,6 +968,7 @@ const AdminPanel = () => {
                 <tbody>
                   {subscriptions.map(sub => {
                     const user = users.find(u => u._id === sub.user?._id || u._id === sub.user);
+                    const userId = sub.user?._id || sub.user;
                     return (
                       <tr key={sub._id}>
                         <td>{user?.email || sub.user?.email || 'Unknown'}</td>
@@ -885,15 +989,28 @@ const AdminPanel = () => {
                         <td className="actions">
                           <select
                             className="plan-selector"
-                            defaultValue={sub.plan}
-                            onChange={(e) => handleUpdateSubscription(sub.user?._id || sub.user, e.target.value)}
+                            value={sub.plan}
+                            onChange={(e) => handleUpdateSubscription(userId, e.target.value)}
                           >
-                            <option value={sub.plan}>---</option>
                             <option value="free">Free</option>
                             <option value="basic">Basic</option>
                             <option value="premium">Premium</option>
                             <option value="vip">VIP</option>
                           </select>
+                          <button
+                            className="btn-edit"
+                            onClick={() => handleToggleSubscription(userId, sub.isActive)}
+                            title={sub.isActive ? 'Deactivate' : 'Activate'}
+                          >
+                            {sub.isActive ? '⏸ Deactivate' : '▶ Activate'}
+                          </button>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDeleteSubscription(userId)}
+                            title="Delete Subscription"
+                          >
+                            🗑 Delete
+                          </button>
                         </td>
                       </tr>
                     );

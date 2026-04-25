@@ -40,6 +40,9 @@ function Header() {
           <Link to="/about" className="nav-link">
             About
           </Link>
+          <Link to="/help" className="nav-link">
+            Help
+          </Link>
           {user && (
             <>
               <Link to="/watchlist" className="nav-link">

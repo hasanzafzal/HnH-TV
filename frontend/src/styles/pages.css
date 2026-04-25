@@ -96,9 +96,10 @@
 
 .detail-meta {
   display: flex;
-  gap: 20px;
+  gap: 10px;
   margin-bottom: 25px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .detail-meta span {
@@ -109,6 +110,12 @@
   border-radius: 4px;
   font-size: 13px;
   color: #ffd700;
+}
+
+.detail-meta .genre-tag {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 215, 0, 0.4);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .description {

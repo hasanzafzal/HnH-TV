@@ -129,6 +129,15 @@ exports.updateUserSubscription = async (req, res) => {
     const { userId } = req.params;
     const { plan, isActive } = req.body;
 
+    // Map plan to its specs so maxQuality/maxScreens/price stay in sync
+    const planSpecs = {
+      free:    { maxQuality: '480p',  maxScreens: 1, monthlyPrice: 0   },
+      basic:   { maxQuality: '720p',  maxScreens: 1, monthlyPrice: 99  },
+      premium: { maxQuality: '1080p', maxScreens: 4, monthlyPrice: 199 },
+      vip:     { maxQuality: '4K',    maxScreens: 6, monthlyPrice: 299 },
+    };
+    const specs = planSpecs[plan] || planSpecs.free;
+
     let subscription = await Subscription.findOne({ user: userId });
 
     if (!subscription) {
@@ -136,16 +145,41 @@ exports.updateUserSubscription = async (req, res) => {
         user: userId,
         plan,
         isActive: true,
+        ...specs,
       });
     } else {
       subscription = await Subscription.findOneAndUpdate(
         { user: userId },
-        { plan, isActive: isActive !== undefined ? isActive : subscription.isActive },
+        {
+          plan,
+          isActive: isActive !== undefined ? isActive : subscription.isActive,
+          updatedAt: new Date(),
+          ...specs,
+        },
         { new: true }
       );
     }
 
     res.status(200).json({ success: true, data: subscription });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// @desc Delete user subscription (Admin only)
+// @route DELETE /api/subscription/admin/:userId
+// @access Private/Admin
+exports.deleteUserSubscription = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const subscription = await Subscription.findOne({ user: userId });
+
+    if (!subscription) {
+      return res.status(404).json({ success: false, message: 'No subscription found for this user' });
+    }
+
+    await Subscription.findByIdAndDelete(subscription._id);
+    res.status(200).json({ success: true, message: 'Subscription deleted successfully' });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

@@ -8,27 +8,30 @@ import apiClient from '../utils/api';
 function Search() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const query = searchParams.get('q');
+  const query = searchParams.get('q') || '';
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const performSearch = useCallback(async () => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
     try {
       setLoading(true);
-      const res = await apiClient.get(`/content/search/${query}`);
-      setResults(res.data.data);
-      setLoading(false);
+      const res = await apiClient.get(`/content/search/${encodeURIComponent(query.trim())}`);
+      setResults(res.data.data || []);
     } catch (error) {
       console.error('Error searching:', error);
+      setResults([]);
+    } finally {
       setLoading(false);
     }
   }, [query]);
 
   useEffect(() => {
-    if (query) {
-      performSearch();
-    }
-  }, [query, performSearch]);
+    performSearch();
+  }, [performSearch]);
 
   const handleWatch = (contentId) => {
     navigate(`/watch/${contentId}`);
@@ -47,16 +50,22 @@ function Search() {
     }
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
-
   return (
     <div className="search-page">
       <Header />
       
       <div className="search-container">
-        <h1>Search Results for "{query}"</h1>
-        
-        {results.length > 0 ? (
+        <h1>
+          {query.trim()
+            ? `Search Results for "${query}"`
+            : 'Search'}
+        </h1>
+
+        {loading ? (
+          <div className="loading">Searching...</div>
+        ) : !query.trim() ? (
+          <p className="empty-message">Enter a search term to find movies and TV series.</p>
+        ) : results.length > 0 ? (
           <div className="results-grid">
             {results.map((content) => (
               <VideoCard

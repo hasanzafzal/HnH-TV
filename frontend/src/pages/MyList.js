@@ -24,7 +24,11 @@ function MyList() {
     try {
       setLoading(true);
       const response = await apiClient.get('/watchlist');
-      setWatchlist(response.data.data || []);
+      // Unwrap: API returns [{content: {…}}, …] — flatten to content objects
+      const items = (response.data.data || [])
+        .map(item => item.content)
+        .filter(Boolean);
+      setWatchlist(items);
     } catch (error) {
       console.error('Error fetching watchlist:', error);
     } finally {
@@ -104,10 +108,10 @@ function MyList() {
                 🎬 Movies ({watchlist.filter(item => item.contentType === 'movie').length})
               </button>
               <button
-                className={`filter-btn ${filter === 'series' ? 'active' : ''}`}
-                onClick={() => setFilter('series')}
+                className={`filter-btn ${filter === 'tv_series' ? 'active' : ''}`}
+                onClick={() => setFilter('tv_series')}
               >
-                📺 Series ({watchlist.filter(item => item.contentType === 'series').length})
+                📺 Series ({watchlist.filter(item => item.contentType === 'tv_series').length})
               </button>
             </div>
 
@@ -146,7 +150,6 @@ function MyList() {
                     <h3>{content.title}</h3>
                     <div className="card-meta">
                       <span className="rating">⭐ {content.rating || 'N/A'}/10</span>
-                      <span className="year">{new Date(content.releaseDate).getFullYear()}</span>
                     </div>
                   </div>
                 </div>

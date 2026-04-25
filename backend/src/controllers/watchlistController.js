@@ -9,7 +9,7 @@ exports.getWatchlist = async (req, res) => {
     const watchlist = await Watchlist.find({ user: req.userId })
       .populate({
         path: 'content',
-        select: 'title posterUrl rating contentType',
+        select: 'title posterUrl rating contentType releaseDate',
       })
       .sort('-addedAt');
 
