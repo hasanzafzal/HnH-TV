@@ -37,22 +37,14 @@ function Header() {
           <Link to="/explore" className="nav-link">
             Explore
           </Link>
+          {user && (
+            <Link to="/watchlist" className="nav-link">
+              Watchlist
+            </Link>
+          )}
           <Link to="/about" className="nav-link">
             About
           </Link>
-          <Link to="/help" className="nav-link">
-            Help
-          </Link>
-          {user && (
-            <>
-              <Link to="/watchlist" className="nav-link">
-                Watchlist
-              </Link>
-              <Link to="/my-list" className="nav-link">
-                My List
-              </Link>
-            </>
-          )}
         </nav>
 
         <form className="search-bar" onSubmit={handleSearch}>

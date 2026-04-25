@@ -38,11 +38,25 @@ function Watch() {
   }, [contentId, user]);
 
   useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     fetchContent();
-  }, [contentId, fetchContent]);
+  }, [contentId, user, navigate, fetchContent]);
 
   if (loading) return <div className="loading">Loading...</div>;
-  if (!content) return <div className="error">Content not found</div>;
+  if (!content) return (
+    <div className="coming-soon-page">
+      <Header />
+      <div className="coming-soon-container">
+        <div className="coming-soon-icon">📺</div>
+        <h1>Stay Tuned!</h1>
+        <p>Coming Soon</p>
+        <button className="btn btn-primary" onClick={() => navigate(-1)}>← Go Back</button>
+      </div>
+    </div>
+  );
 
   // Determine what to play
   let videoUrl = content.videoUrl;

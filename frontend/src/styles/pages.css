@@ -1,3 +1,96 @@
+/* ===================== */
+/* Site Footer            */
+/* ===================== */
+.site-footer {
+  padding: 24px 20px;
+  border-top: 1px solid rgba(255, 215, 0, 0.08);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.site-footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.site-footer-logo {
+  font-size: 18px;
+  font-weight: 900;
+  color: #FFD700;
+}
+
+.site-footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.site-footer-links a {
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.site-footer-links a:hover {
+  color: #FFD700;
+}
+
+.site-footer-copy {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .site-footer-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ===================== */
+/* Coming Soon Fallback   */
+/* ===================== */
+.coming-soon-page {
+  min-height: 100vh;
+}
+
+.coming-soon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.coming-soon-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.coming-soon-container h1 {
+  font-size: 36px;
+  font-weight: 900;
+  color: #FFD700;
+  margin: 0 0 10px 0;
+}
+
+.coming-soon-container p {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 30px 0;
+}
+
+/* ===================== */
+/* Home Page              */
+/* ===================== */
 .home {
   min-height: 100vh;
 }
@@ -1706,3 +1799,179 @@
   }
 }
 
+/* ===================== */
+/* Help Page             */
+/* ===================== */
+.help-page {
+  min-height: 100vh;
+}
+
+.help-hero {
+  position: relative;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 20px 40px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #000 0%, #002a16 50%, #00502D 100%);
+}
+
+.help-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+}
+
+.help-hero-content h1 {
+  font-size: 38px;
+  font-weight: 900;
+  margin: 0 0 12px 0;
+}
+
+.help-hero-content p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.help-section {
+  padding: 60px 20px;
+}
+
+.help-section-alt {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.help-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* FAQ Accordion */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.faq-item.open {
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.faq-question:hover {
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.faq-icon {
+  font-size: 20px;
+  color: #FFD700;
+  font-weight: 300;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.faq-answer {
+  padding: 0 22px 18px;
+}
+
+.faq-answer p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+}
+
+/* Contact Cards */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.contact-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 14px;
+  padding: 30px 24px;
+  text-align: center;
+  transition: all 0.35s ease;
+}
+
+.contact-card:hover {
+  background: rgba(255, 215, 0, 0.06);
+  border-color: rgba(255, 215, 0, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.contact-icon {
+  font-size: 36px;
+  margin-bottom: 14px;
+}
+
+.contact-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #FFD700;
+  margin: 0 0 8px 0;
+}
+
+.contact-card p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 16px 0;
+}
+
+.contact-link {
+  display: inline-block;
+  padding: 8px 18px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  color: #FFD700;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.contact-link:hover {
+  background: rgba(255, 215, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-hero-content h1 {
+    font-size: 28px;
+  }
+}

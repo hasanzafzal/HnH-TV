@@ -133,16 +133,6 @@ function Help() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="about-footer">
-        <div className="about-container">
-          <div className="about-footer-content">
-            <span className="about-footer-logo">HnH TV</span>
-            <p>© {new Date().getFullYear()} HnH TV. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

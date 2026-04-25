@@ -38,15 +38,25 @@ const Explore = () => {
     fetchGenres();
   }, []);
 
-  // Fetch content based on filters
+  // Debounced filters for API call (delays text input)
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFilters(filters);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [filters]);
+
+  // Fetch content based on debounced filters
   useEffect(() => {
     const fetchContent = async () => {
       setLoading(true);
       try {
         const queryParams = new URLSearchParams();
-        Object.keys(filters).forEach((key) => {
-          if (filters[key]) {
-            queryParams.append(key, filters[key]);
+        Object.keys(debouncedFilters).forEach((key) => {
+          if (debouncedFilters[key]) {
+            queryParams.append(key, debouncedFilters[key]);
           }
         });
 
@@ -66,7 +76,7 @@ const Explore = () => {
     };
 
     fetchContent();
-  }, [filters]);
+  }, [debouncedFilters]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
