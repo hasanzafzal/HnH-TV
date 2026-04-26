@@ -21,8 +21,10 @@ import Footer from './components/Footer';
 import Chatbot from './components/Chatbot';
 
 function App() {
-  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
+  let apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  if (apiBaseUrl.includes('localhost') && window.location.hostname !== 'localhost') {
+    apiBaseUrl = `http://${window.location.hostname}:5000/api`;
+  }
   useEffect(() => {
     // Health check in background (non-blocking)
     const controller = new AbortController();

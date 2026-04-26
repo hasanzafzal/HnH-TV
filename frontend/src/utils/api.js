@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Dynamically determine the API base URL to allow cross-device testing on local networks
+let API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+if (API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
+  API_URL = `http://${window.location.hostname}:5000/api`;
+}
 
 const apiClient = axios.create({
   baseURL: API_URL,

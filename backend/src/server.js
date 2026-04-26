@@ -10,7 +10,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.18.18:3001', '*'],
+  origin: function (origin, callback) {
+    // Allow all origins for local testing
+    callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json());

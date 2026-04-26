@@ -13,7 +13,10 @@ function isOneDriveUrl(url) {
  * Convert a OneDrive sharing URL to a backend proxy stream URL.
  */
 function getStreamUrl(url) {
-  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  let apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  if (apiBase.includes('localhost') && window.location.hostname !== 'localhost') {
+    apiBase = `http://${window.location.hostname}:5000/api`;
+  }
   return `${apiBase}/stream?url=${encodeURIComponent(url)}`;
 }
 
