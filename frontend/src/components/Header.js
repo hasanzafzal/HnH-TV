@@ -54,11 +54,7 @@ function Header() {
               Watchlist
             </Link>
           )}
-          {user && (
-            <Link to="/history" className="nav-link">
-              History
-            </Link>
-          )}
+
           <Link to="/about" className="nav-link">
             About
           </Link>

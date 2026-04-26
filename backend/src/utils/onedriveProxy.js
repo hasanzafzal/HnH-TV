@@ -1,12 +1,13 @@
-const https = require('https');
+const { https } = require('follow-redirects');
+const nativeHttps = require('https');
 const { spawn } = require('child_process');
 
 /**
  * Resolve a OneDrive sharing URL to a direct download URL.
- * 
+ *
  * OneDrive 1drv.ms links follow this pattern:
  *   https://1drv.ms/v/c/{CID}/{SHARE_ID}?e=...
- * 
+ *
  * The direct download URL is:
  *   https://my.microsoftpersonalcontent.com/personal/{cid_lowercase}/_layouts/15/download.aspx?share={SHARE_ID}
  */
@@ -20,13 +21,14 @@ function resolveOneDriveUrl(shareUrl) {
       method: 'HEAD',
     };
 
-    const req = https.request(options, (res) => {
+    // Use native https (no follow) to capture the first redirect
+    const req = nativeHttps.request(options, (res) => {
       if (res.statusCode === 301 || res.statusCode === 302) {
         const location = res.headers.location;
         try {
           const redirectUrl = new URL(location);
           const cid = redirectUrl.searchParams.get('cid');
-          
+
           const pathParts = parsed.pathname.split('/');
           const shareId = pathParts[pathParts.length - 1];
           const cidLower = cid ? cid.toLowerCase() : pathParts[pathParts.length - 2].toLowerCase();
@@ -63,7 +65,33 @@ function needsRemux(contentDisposition) {
 }
 
 /**
+ * Do a HEAD request that follows redirects to get the final file info.
+ */
+function getFileInfo(downloadUrl) {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(downloadUrl);
+    const headReq = https.request({
+      hostname: parsed.hostname,
+      path: parsed.pathname + parsed.search,
+      method: 'HEAD',
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      maxRedirects: 10,
+    }, (headRes) => {
+      const disposition = headRes.headers['content-disposition'] || '';
+      const contentLength = headRes.headers['content-length'] || '';
+      const contentType = headRes.headers['content-type'] || '';
+      console.log(`[Stream] HEAD → status=${headRes.statusCode}, type=${contentType}, length=${contentLength}, disposition=${disposition.substring(0, 80)}`);
+      resolve({ disposition, contentLength, contentType });
+    });
+    headReq.on('error', reject);
+    headReq.setTimeout(15000, () => { headReq.destroy(); reject(new Error('HEAD timeout')); });
+    headReq.end();
+  });
+}
+
+/**
  * Proxy a video stream from OneDrive to the client.
+ * Uses follow-redirects to properly handle OneDrive CDN redirects.
  * For MKV files, remuxes to MP4 on the fly using FFmpeg.
  * For MP4/WebM files, proxies directly with Range support.
  */
@@ -71,43 +99,38 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
   const parsed = new URL(downloadUrl);
 
   // First, do a HEAD request to check the content type
-  const fileInfo = await new Promise((resolve, reject) => {
-    const headReq = https.request({
-      hostname: parsed.hostname,
-      path: parsed.pathname + parsed.search,
-      method: 'HEAD',
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-    }, (headRes) => {
-      const disposition = headRes.headers['content-disposition'] || '';
-      resolve({ disposition, contentLength: headRes.headers['content-length'] });
-    });
-    headReq.on('error', reject);
-    headReq.setTimeout(10000, () => { headReq.destroy(); reject(new Error('HEAD timeout')); });
-    headReq.end();
-  });
+  const fileInfo = await getFileInfo(downloadUrl);
 
   if (needsRemux(fileInfo.disposition)) {
     // MKV file — remux to MP4 via FFmpeg
-    // Do NOT forward Range headers — FFmpeg needs the full file sequentially
     console.log('[Stream] MKV detected — remuxing to MP4 via FFmpeg');
 
     res.writeHead(200, {
       'Content-Type': 'video/mp4',
       'Transfer-Encoding': 'chunked',
       'Cache-Control': 'no-cache',
+      'X-Content-Type-Options': 'nosniff',
     });
 
-    // Fetch the full file from OneDrive (no Range header)
+    // Fetch the full file from OneDrive (follows redirects)
     const proxyReq = https.get({
       hostname: parsed.hostname,
       path: parsed.pathname + parsed.search,
       headers: { 'User-Agent': 'Mozilla/5.0' },
+      maxRedirects: 10,
     }, (proxyRes) => {
+      if (proxyRes.statusCode !== 200) {
+        console.error(`[Stream] OneDrive returned status ${proxyRes.statusCode} for MKV`);
+        if (!res.writableEnded) res.end();
+        return;
+      }
+
       const ffmpeg = spawn('ffmpeg', [
         '-hide_banner',
         '-loglevel', 'warning',
-        '-probesize', '10M',
-        '-analyzeduration', '10M',
+        '-probesize', '50M',
+        '-analyzeduration', '50M',
+        '-fflags', '+genpts+discardcorrupt',
         '-i', 'pipe:0',
         '-map', '0:v:0',
         '-map', '0:a:0',
@@ -123,14 +146,30 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
         stdio: ['pipe', 'pipe', 'pipe']
       });
 
-      proxyRes.pipe(ffmpeg.stdin);
+      // Pipe OneDrive → FFmpeg stdin with backpressure handling
+      proxyRes.on('data', (chunk) => {
+        const canWrite = ffmpeg.stdin.write(chunk);
+        if (!canWrite) {
+          proxyRes.pause();
+          ffmpeg.stdin.once('drain', () => proxyRes.resume());
+        }
+      });
+      proxyRes.on('end', () => {
+        ffmpeg.stdin.end();
+      });
+      proxyRes.on('error', () => {
+        ffmpeg.stdin.end();
+      });
+
+      // Pipe FFmpeg stdout → response
       ffmpeg.stdout.pipe(res);
 
       ffmpeg.stdin.on('error', () => {});
       ffmpeg.stdout.on('error', () => {});
 
       ffmpeg.stderr.on('data', (data) => {
-        console.log('[FFmpeg]', data.toString().trim());
+        const msg = data.toString().trim();
+        if (msg) console.log('[FFmpeg]', msg);
       });
 
       ffmpeg.on('error', (err) => {
@@ -141,23 +180,25 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
         if (code !== 0 && code !== null) {
           console.error('[FFmpeg] Exited with code:', code);
         }
+        if (!res.writableEnded) res.end();
       });
 
       req.on('close', () => {
+        proxyRes.destroy();
         ffmpeg.kill('SIGTERM');
         proxyReq.destroy();
       });
     });
 
     proxyReq.on('error', (err) => {
-      console.error('MKV proxy error:', err);
+      console.error('MKV proxy error:', err.message);
       if (!res.headersSent) {
         res.status(502).json({ error: 'Failed to fetch video' });
       }
     });
 
   } else {
-    // MP4/WebM — direct proxy with Range support
+    // MP4/WebM — direct proxy with Range support (follows redirects)
     const headers = {
       'User-Agent': 'Mozilla/5.0',
     };
@@ -165,11 +206,25 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
       headers['Range'] = req.headers.range;
     }
 
+    console.log(`[Stream] Direct proxy — Range: ${req.headers.range || 'none'}`);
+
     const proxyReq = https.get({
       hostname: parsed.hostname,
       path: parsed.pathname + parsed.search,
       headers,
+      maxRedirects: 10,
     }, (proxyRes) => {
+      console.log(`[Stream] OneDrive responded: ${proxyRes.statusCode}, content-length: ${proxyRes.headers['content-length'] || 'unknown'}`);
+
+      // If OneDrive returned an error, don't pipe garbage to the client
+      if (proxyRes.statusCode >= 400) {
+        console.error(`[Stream] OneDrive error: ${proxyRes.statusCode}`);
+        if (!res.headersSent) {
+          res.status(502).json({ error: 'Video source unavailable' });
+        }
+        return;
+      }
+
       const responseHeaders = {
         'Content-Type': 'video/mp4',
         'Accept-Ranges': 'bytes',
@@ -193,7 +248,7 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
       proxyRes.pipe(res);
 
       proxyRes.on('error', (err) => {
-        console.error('Proxy stream error:', err);
+        console.error('Proxy stream error:', err.message);
       });
 
       req.on('close', () => {
@@ -202,7 +257,7 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
     });
 
     proxyReq.on('error', (err) => {
-      console.error('Proxy request error:', err);
+      console.error('Proxy request error:', err.message);
       if (!res.headersSent) {
         res.status(502).json({ error: 'Failed to fetch video' });
       }

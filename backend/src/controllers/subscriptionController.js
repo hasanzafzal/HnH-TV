@@ -22,14 +22,22 @@ exports.getSubscription = async (req, res) => {
 // @access Private
 exports.createSubscription = async (req, res) => {
   try {
-    const { plan, billingCycle, monthlyPrice } = req.body;
+    const { plan, billingCycle } = req.body;
+
+    const planSpecs = {
+      free:    { maxQuality: '480p',  maxScreens: 1, monthlyPrice: 0   },
+      basic:   { maxQuality: '720p',  maxScreens: 1, monthlyPrice: 99  },
+      premium: { maxQuality: '1080p', maxScreens: 4, monthlyPrice: 199 },
+      vip:     { maxQuality: '4K',    maxScreens: 6, monthlyPrice: 299 },
+    };
+    const specs = planSpecs[plan] || planSpecs.free;
 
     let subscription = await Subscription.findOne({ user: req.userId });
 
     if (subscription) {
       subscription = await Subscription.findOneAndUpdate(
         { user: req.userId },
-        { plan, billingCycle, monthlyPrice, startDate: new Date() },
+        { plan, billingCycle, startDate: new Date(), isActive: true, ...specs },
         { new: true }
       );
     } else {
@@ -37,7 +45,8 @@ exports.createSubscription = async (req, res) => {
         user: req.userId,
         plan,
         billingCycle,
-        monthlyPrice,
+        isActive: true,
+        ...specs,
       });
     }
 

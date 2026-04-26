@@ -23,7 +23,8 @@ function Subscription() {
     }
     fetchPlans();
     fetchCurrentSubscription();
-  }, [user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchPlans = async () => {
     try {
@@ -53,18 +54,31 @@ function Subscription() {
   const handlePaymentSuccess = async (plan) => {
     setGatewayPlan(null);
     try {
-      await apiClient.post('/subscription', {
+      const res = await apiClient.post('/subscription', {
         plan: plan.name,
         billingCycle: 'monthly',
       });
-    } catch (_) {
-      // ignore backend errors in mock mode
+
+      if (res.data.success) {
+        // Immediately update the UI with the response data
+        setCurrentPlan(res.data.data);
+        setToast({
+          message: `🎉 You're now subscribed to the ${plan.name.toUpperCase()} plan!`,
+          type: 'success',
+        });
+      } else {
+        setToast({
+          message: res.data.message || 'Failed to update subscription. Please try again.',
+          type: 'warning',
+        });
+      }
+    } catch (err) {
+      console.error('Subscription update error:', err);
+      setToast({
+        message: err.response?.data?.message || 'Failed to update subscription. Please try again.',
+        type: 'warning',
+      });
     }
-    setToast({
-      message: `🎉 You're now subscribed to the ${plan.name.toUpperCase()} plan!`,
-      type: 'success',
-    });
-    fetchCurrentSubscription();
   };
 
   const handleCancel = async () => {

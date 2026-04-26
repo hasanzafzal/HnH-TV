@@ -19,6 +19,15 @@ function ContentDetail() {
   const [reviewText, setReviewText] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedSeason, setSelectedSeason] = useState(0);
+  const [watchProgress, setWatchProgress] = useState(null);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchWatchProgress = useCallback(async () => {
+    try {
+      const res = await apiClient.get(`/watch-history/${contentId}`);
+      setWatchProgress(res.data.data);
+    } catch (_) { /* no history yet */ }
+  }, [contentId]);
 
   const fetchContent = useCallback(async () => {
     try {
@@ -51,7 +60,8 @@ function ContentDetail() {
     }
     fetchContent();
     checkWatchlist();
-  }, [contentId, user, navigate, fetchContent, checkWatchlist]);
+    fetchWatchProgress();
+  }, [contentId, user, navigate, fetchContent, checkWatchlist, fetchWatchProgress]);
 
 
 
@@ -135,6 +145,9 @@ function ContentDetail() {
               ? <span className="duration">{content.seasons.length} Season{content.seasons.length !== 1 ? 's' : ''}</span>
               : content.duration && <span className="duration">{content.duration} min</span>
             }
+            {watchProgress && (watchProgress.isCompleted || watchProgress.progress >= 95) && (
+              <span className="watched-tag">✓ Already Watched</span>
+            )}
             {content.genre && content.genre.length > 0 && (
               content.genre.map(g => (
                 <span key={g._id || g} className="genre-tag">{g.name || g}</span>

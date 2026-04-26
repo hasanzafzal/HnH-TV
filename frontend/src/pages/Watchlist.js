@@ -42,7 +42,7 @@ function Watchlist() {
   };
 
   const handleWatch = (contentId) => {
-    navigate(`/watch/${contentId}`);
+    navigate(`/detail/${contentId}`);
   };
 
   if (loading) return <div className="loading">Loading...</div>;

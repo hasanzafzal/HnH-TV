@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import '../styles/components.css';
 import apiClient from '../utils/api';
 import { getUser } from '../utils/storage';
@@ -23,6 +23,25 @@ function getStreamUrl(url) {
 }
 
 /**
+ * Map browser MediaError codes to user-friendly messages.
+ */
+function getErrorMessage(video) {
+  if (!video || !video.error) return null;
+  switch (video.error.code) {
+    case 1: // MEDIA_ERR_ABORTED
+      return 'Playback was interrupted. Please try again.';
+    case 2: // MEDIA_ERR_NETWORK
+      return 'A network error occurred while loading the video.';
+    case 3: // MEDIA_ERR_DECODE
+      return 'This video format is not supported by your browser.';
+    case 4: // MEDIA_ERR_SRC_NOT_SUPPORTED
+      return 'This video is currently unavailable. Please try again later.';
+    default:
+      return 'An unexpected playback error occurred.';
+  }
+}
+
+/**
  * VideoPlayer
  * Props:
  *   videoUrl      – source URL
@@ -36,14 +55,19 @@ function getStreamUrl(url) {
 function VideoPlayer({ videoUrl, title, duration = 0, contentId, seasonNumber, episodeNumber, startSeconds = 0 }) {
   const videoRef = useRef(null);
   const saveIntervalRef = useRef(null);
-  const user = getUser();
+  const hasRestoredRef = useRef(false);
+  const userRef = useRef(getUser());
+  const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const effectiveUrl = isOneDriveUrl(videoUrl) ? getStreamUrl(videoUrl) : videoUrl;
 
   /* ── Save progress to backend ────────────────────── */
   const saveProgress = useCallback(async () => {
     const video = videoRef.current;
+    const user = userRef.current;
     if (!video || !contentId || !user) return;
+    if (video.paused && video.currentTime === 0) return;
 
     const currentTime = video.currentTime;
     const totalDuration = video.duration || duration;
@@ -64,17 +88,20 @@ function VideoPlayer({ videoUrl, title, duration = 0, contentId, seasonNumber, e
     } catch (_) {
       // Silent — do not interrupt the viewer
     }
-  }, [contentId, user, duration, seasonNumber, episodeNumber]);
+  }, [contentId, duration, seasonNumber, episodeNumber]);
 
   /* ── Set volume & restore resume position on mount ── */
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
+    hasRestoredRef.current = false;
+    setError(null);
     video.volume = 1;
 
-    // Restore saved position once metadata is loaded
     const onLoaded = () => {
+      if (hasRestoredRef.current) return;
+      hasRestoredRef.current = true;
       if (startSeconds && startSeconds > 5) {
         video.currentTime = startSeconds;
       }
@@ -83,27 +110,46 @@ function VideoPlayer({ videoUrl, title, duration = 0, contentId, seasonNumber, e
     if (video.readyState >= 1) {
       onLoaded();
     } else {
-      video.addEventListener('loadedmetadata', onLoaded, { once: true });
+      video.addEventListener('loadedmetadata', onLoaded);
     }
 
     return () => video.removeEventListener('loadedmetadata', onLoaded);
-  }, [startSeconds, effectiveUrl]); // re-run when URL changes (episode switch)
+  }, [startSeconds, effectiveUrl]);
 
-  /* ── Start / stop the 10-second autosave interval ── */
+  /* ── Handle video errors gracefully ── */
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const onError = (e) => {
+      // Suppress AbortError from normal navigation / unmounts
+      if (e?.target?.error?.code === 1) return;
+      const msg = getErrorMessage(video);
+      console.warn('[VideoPlayer] Error:', msg, video.error);
+      setError(msg);
+    };
+
+    video.addEventListener('error', onError);
+    return () => video.removeEventListener('error', onError);
+  }, [effectiveUrl, retryCount]);
+
+  /* ── Start / stop the 30-second autosave interval ── */
+  useEffect(() => {
+    const user = userRef.current;
     if (!contentId || !user) return;
 
-    saveIntervalRef.current = setInterval(saveProgress, 10000);
+    saveIntervalRef.current = setInterval(saveProgress, 30000);
 
     return () => {
       clearInterval(saveIntervalRef.current);
-      saveProgress(); // save on unmount / navigate away
+      saveProgress();
     };
-  }, [contentId, user, saveProgress]);
+  }, [contentId, saveProgress]);
 
   /* ── Also save on pause and when video ends ─────── */
   useEffect(() => {
     const video = videoRef.current;
+    const user = userRef.current;
     if (!video || !contentId || !user) return;
 
     video.addEventListener('pause', saveProgress);
@@ -113,13 +159,24 @@ function VideoPlayer({ videoUrl, title, duration = 0, contentId, seasonNumber, e
       video.removeEventListener('pause', saveProgress);
       video.removeEventListener('ended', saveProgress);
     };
-  }, [saveProgress, contentId, user]);
+  }, [saveProgress, contentId]);
+
+  const handleRetry = () => {
+    setError(null);
+    setRetryCount(c => c + 1);
+    const video = videoRef.current;
+    if (video) {
+      hasRestoredRef.current = false;
+      video.load();
+    }
+  };
 
   return (
     <div className="video-player-container">
       <div className="video-player">
         <video
           ref={videoRef}
+          key={retryCount}
           src={effectiveUrl}
           controls
           controlsList="nodownload"
@@ -128,6 +185,26 @@ function VideoPlayer({ videoUrl, title, duration = 0, contentId, seasonNumber, e
         >
           Your browser does not support the video tag.
         </video>
+
+        {/* Netflix-style error overlay */}
+        {error && (
+          <div className="player-error-overlay">
+            <div className="player-error-content">
+              <div className="player-error-icon">⚠</div>
+              <h3 className="player-error-title">Whoops, something went wrong...</h3>
+              <p className="player-error-message">{error}</p>
+              <p className="player-error-code">Error Code: HNH-{retryCount > 0 ? 'R' : 'P'}{Date.now().toString(36).slice(-4).toUpperCase()}</p>
+              <div className="player-error-actions">
+                <button className="player-error-btn primary" onClick={handleRetry}>
+                  ↻ Try Again
+                </button>
+                <button className="player-error-btn secondary" onClick={() => window.history.back()}>
+                  ← Go Back
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <h2>{title}</h2>
     </div>

@@ -14,6 +14,7 @@ function VideoCard({ content, onWatchClick, onAddWatchlist }) {
     >
       <div className="card-image">
         <img src={content.posterUrl} alt={content.title} />
+        {content.isCompleted && <div className="watched-badge">✓ Watched</div>}
         {isHovered && (
           <div className="card-overlay">
             <button className="play-btn" onClick={() => onWatchClick(content._id)}>

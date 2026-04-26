@@ -74,7 +74,9 @@ export default function ContinueWatching() {
 
                             {/* Title */}
                             <p className="cw-card-title">{content.title}</p>
-                            <p className="cw-card-sub">{item.progress}% watched</p>
+                            <p className="cw-card-sub">
+                                {item.isCompleted || item.progress >= 95 ? 'Already Watched' : `${item.progress}% watched`}
+                            </p>
                         </div>
                     );
                 })}

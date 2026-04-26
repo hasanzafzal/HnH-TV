@@ -109,8 +109,7 @@ exports.getContinueWatching = async (req, res) => {
   try {
     const history = await WatchHistory.find({
       user: req.userId,
-      isCompleted: false,
-      progress: { $gt: 5, $lt: 95 },
+      progress: { $gt: 5 },
     })
       .populate('content', 'title posterUrl bannerUrl contentType duration seasons')
       .sort('-watchedAt')
