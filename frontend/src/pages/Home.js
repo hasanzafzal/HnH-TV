@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import CategorySlider from '../components/CategorySlider';
+import ContinueWatching from '../components/ContinueWatching';
 import '../styles/pages.css';
 import apiClient from '../utils/api';
 
@@ -85,6 +86,8 @@ function Home() {
       )}
 
       <div className="content-section">
+        {/* Continue Watching — only shown when user has in-progress content */}
+        <ContinueWatching />
         {trendingContent.length > 0 && (
           <CategorySlider
             title="Trending Now"

@@ -1,0 +1,149 @@
+/* ====================================================
+   SUBSCRIPTION GATE  –  HnH TV palette
+   ==================================================== */
+
+.sg-overlay {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: linear-gradient(135deg, #000000 0%, #00502D 100%);
+}
+
+.sg-card {
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid #FFD700;
+    border-radius: 16px;
+    padding: 48px 40px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 48px rgba(255, 215, 0, 0.12), 0 24px 80px rgba(0, 0, 0, 0.6);
+    animation: sgPop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes sgPop {
+    from {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Icon */
+.sg-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    animation: sgBounce 1.5s ease infinite alternate;
+}
+
+@keyframes sgBounce {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-6px);
+    }
+}
+
+/* Heading */
+.sg-title {
+    color: #FFD700;
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0 0 12px;
+    letter-spacing: -0.2px;
+}
+
+/* Body text */
+.sg-text {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 24px;
+}
+
+/* Benefits list */
+.sg-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+}
+
+.sg-benefits li {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    background: rgba(255, 215, 0, 0.06);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 8px;
+    padding: 10px 16px;
+    transition: background 0.2s;
+}
+
+.sg-benefits li:hover {
+    background: rgba(255, 215, 0, 0.11);
+}
+
+/* Action buttons */
+.sg-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.sg-btn {
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.sg-btn:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.sg-btn:active {
+    transform: translateY(0);
+}
+
+.sg-btn--primary {
+    background: #FFD700;
+    color: #000;
+    font-weight: 800;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.35);
+}
+
+.sg-btn--secondary {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sg-btn--secondary:hover {
+    background: rgba(229, 9, 20, 0.15);
+    border-color: #e50914;
+    color: #fff;
+    opacity: 1;
+}
+
+/* Footer note */
+.sg-note {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.75rem;
+    margin: 0;
+}

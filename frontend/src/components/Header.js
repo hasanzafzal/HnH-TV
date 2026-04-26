@@ -2,17 +2,22 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/components.css';
 import { getUser, logout } from '../utils/storage';
+import Toast from './Toast';
 
 function Header() {
   const navigate = useNavigate();
   const user = getUser();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [toast, setToast] = useState(null);
 
   const handleLogout = () => {
     logout();
-    navigate('/');
-    window.location.reload();
+    setToast({ message: "You've been logged out. See you soon!", type: 'warning' });
+    setTimeout(() => {
+      navigate('/');
+      window.location.reload();
+    }, 2000);
   };
 
   const handleSearch = (e) => {
@@ -25,6 +30,13 @@ function Header() {
 
   return (
     <header className="header">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="header-container">
         <Link to="/" className="logo">
           HnH TV
@@ -40,6 +52,11 @@ function Header() {
           {user && (
             <Link to="/watchlist" className="nav-link">
               Watchlist
+            </Link>
+          )}
+          {user && (
+            <Link to="/history" className="nav-link">
+              History
             </Link>
           )}
           <Link to="/about" className="nav-link">
@@ -70,6 +87,9 @@ function Header() {
                   </Link>
                   <Link to="/account" className="dropdown-link">
                     Account
+                  </Link>
+                  <Link to="/history" className="dropdown-link">
+                    🕐 Watch History
                   </Link>
                   <Link to="/subscription" className="dropdown-link">
                     Subscription

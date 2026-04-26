@@ -30,13 +30,13 @@ exports.getWatchHistory = async (req, res) => {
   }
 };
 
-// @desc Add to watch history
+// @desc Save / update watch progress
 // @route POST /api/watch-history/:contentId
 // @access Private
 exports.addToWatchHistory = async (req, res) => {
   try {
     const { contentId } = req.params;
-    const { duration, progress, isCompleted } = req.body;
+    const { duration, progress, watchedSeconds, isCompleted, seasonNumber, episodeNumber } = req.body;
 
     // Check if content exists
     const content = await Content.findById(contentId);
@@ -44,17 +44,26 @@ exports.addToWatchHistory = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Content not found' });
     }
 
-    // Update if exists, create if not
-    let history = await WatchHistory.findOneAndUpdate(
-      { user: req.userId, content: contentId },
-      {
-        watchedAt: new Date(),
-        duration: duration || 0,
-        progress: progress || 0,
-        isCompleted: isCompleted || false,
-      },
-      { upsert: true, new: true }
-    );
+    // Build the filter — episode-aware for TV series
+    const filter = {
+      user: req.userId,
+      content: contentId,
+      seasonNumber: seasonNumber ?? null,
+      episodeNumber: episodeNumber ?? null,
+    };
+
+    const update = {
+      watchedAt: new Date(),
+      duration: duration || 0,
+      watchedSeconds: watchedSeconds || 0,
+      progress: progress || 0,
+      isCompleted: isCompleted || false,
+    };
+
+    let history = await WatchHistory.findOneAndUpdate(filter, update, {
+      upsert: true,
+      new: true,
+    });
 
     await history.populate('content', 'title posterUrl contentType');
 
@@ -64,20 +73,26 @@ exports.addToWatchHistory = async (req, res) => {
   }
 };
 
-// @desc Get watch progress for a content
-// @route GET /api/watch-history/:contentId
+// @desc Get watch progress for a specific content (and optional episode)
+// @route GET /api/watch-history/:contentId?season=1&episode=2
 // @access Private
 exports.getWatchProgress = async (req, res) => {
   try {
-    const history = await WatchHistory.findOne({
+    const { season, episode } = req.query;
+
+    const filter = {
       user: req.userId,
       content: req.params.contentId,
-    });
+      seasonNumber: season ? parseInt(season) : null,
+      episodeNumber: episode ? parseInt(episode) : null,
+    };
+
+    const history = await WatchHistory.findOne(filter);
 
     if (!history) {
       return res.status(200).json({
         success: true,
-        data: { progress: 0, duration: 0, isCompleted: false },
+        data: { progress: 0, duration: 0, watchedSeconds: 0, isCompleted: false },
       });
     }
 
@@ -87,7 +102,7 @@ exports.getWatchProgress = async (req, res) => {
   }
 };
 
-// @desc Get continue watching list
+// @desc Get continue watching list (not completed, progress > 5%)
 // @route GET /api/watch-history/continue-watching
 // @access Private
 exports.getContinueWatching = async (req, res) => {
@@ -95,9 +110,9 @@ exports.getContinueWatching = async (req, res) => {
     const history = await WatchHistory.find({
       user: req.userId,
       isCompleted: false,
-      progress: { $gt: 0, $lt: 100 },
+      progress: { $gt: 5, $lt: 95 },
     })
-      .populate('content', 'title posterUrl contentType')
+      .populate('content', 'title posterUrl bannerUrl contentType duration seasons')
       .sort('-watchedAt')
       .limit(10);
 

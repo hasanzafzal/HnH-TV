@@ -2,17 +2,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import VideoPlayer from '../components/VideoPlayer';
+import SubscriptionGate from '../components/SubscriptionGate';
 import '../styles/pages.css';
 import apiClient from '../utils/api';
 import { getUser } from '../utils/storage';
+import { useSubscription } from '../utils/useSubscription';
 
 function Watch() {
   const { contentId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const user = getUser();
+  const { subscribed, loading: subLoading } = useSubscription();
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [savedSeconds, setSavedSeconds] = useState(0);
 
   const seasonNum = parseInt(searchParams.get('season')) || null;
   const episodeNum = parseInt(searchParams.get('episode')) || null;
@@ -22,20 +26,21 @@ function Watch() {
       const res = await apiClient.get(`/content/${contentId}`);
       setContent(res.data.data);
 
-      // Update watch history if user is logged in
-      if (user) {
-        await apiClient.post(`/watch-history/${contentId}`, {
-          progress: 0,
-          duration: 0,
-        });
-      }
+      // Fetch saved progress for resume
+      try {
+        const progressParams = {};
+        if (seasonNum) progressParams.season = seasonNum;
+        if (episodeNum) progressParams.episode = episodeNum;
+        const progressRes = await apiClient.get(`/watch-history/${contentId}`, { params: progressParams });
+        setSavedSeconds(progressRes.data.data?.watchedSeconds || 0);
+      } catch (_) { }
 
       setLoading(false);
     } catch (error) {
       console.error('Error fetching content:', error);
       setLoading(false);
     }
-  }, [contentId, user]);
+  }, [contentId, seasonNum, episodeNum]);
 
   useEffect(() => {
     if (!user) {
@@ -44,6 +49,10 @@ function Watch() {
     }
     fetchContent();
   }, [contentId, user, navigate, fetchContent]);
+
+  // Block unsubscribed users
+  if (subLoading) return <div className="loading">Loading...</div>;
+  if (!subscribed) return <SubscriptionGate />;
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!content) return (
@@ -113,6 +122,10 @@ function Watch() {
           videoUrl={videoUrl}
           title={playingTitle}
           duration={currentEpisode?.duration || content.duration}
+          contentId={contentId}
+          seasonNumber={seasonNum}
+          episodeNumber={episodeNum}
+          startSeconds={savedSeconds}
         />
       </div>
 

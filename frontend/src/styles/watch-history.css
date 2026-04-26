@@ -1,0 +1,247 @@
+/* ====================================================
+   WATCH HISTORY PAGE  –  HnH TV palette
+   ==================================================== */
+
+.wh-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #000000 0%, #00502D 100%);
+}
+
+.wh-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+/* ── Page header ───────────────────────────────────── */
+.wh-header {
+    margin-bottom: 32px;
+    border-bottom: 2px solid #FFD700;
+    padding-bottom: 16px;
+}
+
+.wh-header h1 {
+    color: #FFD700;
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+}
+
+.wh-subtitle {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ── Empty state ───────────────────────────────────── */
+.wh-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    gap: 12px;
+}
+
+.wh-empty-icon {
+    font-size: 4rem;
+}
+
+.wh-empty h2 {
+    color: #fff;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.wh-empty p {
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0;
+}
+
+/* ── History list ──────────────────────────────────── */
+.wh-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ── Single item card ──────────────────────────────── */
+.wh-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 215, 0, 0.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.wh-item:hover {
+    border-color: rgba(255, 215, 0, 0.35);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+/* Poster */
+.wh-poster {
+    position: relative;
+    width: 80px;
+    aspect-ratio: 2/3;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.wh-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.wh-poster-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.wh-poster:hover .wh-poster-overlay {
+    opacity: 1;
+}
+
+.wh-resume-icon {
+    color: #FFD700;
+    font-size: 1.4rem;
+}
+
+.wh-completed-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 80, 45, 0.9);
+    color: #FFD700;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 3px 0;
+}
+
+/* Info column */
+.wh-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.wh-title {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wh-title:hover {
+    color: #FFD700;
+}
+
+.wh-episode {
+    color: #e50914;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.wh-type {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+}
+
+.wh-date {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+/* Progress bar */
+.wh-progress-track {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.wh-progress-fill {
+    height: 100%;
+    background: #FFD700;
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.wh-progress-fill--done {
+    background: #4ade80;
+}
+
+.wh-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    margin-top: 3px;
+}
+
+/* Actions column */
+.wh-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.wh-btn {
+    font-size: 0.8rem !important;
+    padding: 8px 14px !important;
+    border-radius: 6px !important;
+    white-space: nowrap;
+}
+
+/* ── Pagination ─────────────────────────────────────── */
+.wh-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.wh-page-info {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 540px) {
+    .wh-item {
+        grid-template-columns: 64px 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    .wh-actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}

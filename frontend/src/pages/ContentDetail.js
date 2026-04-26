@@ -5,11 +5,13 @@ import RatingComponent from '../components/RatingComponent';
 import '../styles/pages.css';
 import apiClient from '../utils/api';
 import { getUser } from '../utils/storage';
+import { useSubscription } from '../utils/useSubscription';
 
 function ContentDetail() {
   const { contentId } = useParams();
   const navigate = useNavigate();
   const user = getUser();
+  const { subscribed } = useSubscription();
   const [content, setContent] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [inWatchlist, setInWatchlist] = useState(false);
@@ -22,10 +24,10 @@ function ContentDetail() {
     try {
       const res = await apiClient.get(`/content/${contentId}`);
       setContent(res.data.data);
-      
+
       const reviewsRes = await apiClient.get(`/reviews/${contentId}`);
       setReviews(reviewsRes.data.data);
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching content:', error);
@@ -87,10 +89,12 @@ function ContentDetail() {
   };
 
   const handleWatch = () => {
+    if (!subscribed) { navigate('/subscription'); return; }
     navigate(`/watch/${contentId}`);
   };
 
   const handleWatchEpisode = (seasonNum, episodeNum) => {
+    if (!subscribed) { navigate('/subscription'); return; }
     navigate(`/watch/${contentId}?season=${seasonNum}&episode=${episodeNum}`);
   };
 
@@ -122,7 +126,7 @@ function ContentDetail() {
       <div className="detail-container">
         <div className="detail-main">
           <h1>{content.title}</h1>
-          
+
           <div className="detail-meta">
             <span className="rating">⭐ {content.rating}/10</span>
             <span className="type">{content.contentType === 'tv_series' ? 'TV Series' : 'Movie'}</span>
@@ -157,7 +161,7 @@ function ContentDetail() {
           <div className="action-buttons">
             {!isTvSeries && (
               <button className="btn btn-primary" onClick={handleWatch}>
-                ▶ Watch Now
+                {subscribed ? '▶ Watch Now' : '🔒 Subscribe to Watch'}
               </button>
             )}
             <button
@@ -199,7 +203,7 @@ function ContentDetail() {
                         </div>
                         <div className="episode-meta">
                           {ep.duration > 0 && <span className="ep-duration">{ep.duration} min</span>}
-                          <span className="ep-play">▶ Play</span>
+                          <span className="ep-play">{subscribed ? '▶ Play' : '🔒 Subscribe'}</span>
                         </div>
                       </div>
                     ))}

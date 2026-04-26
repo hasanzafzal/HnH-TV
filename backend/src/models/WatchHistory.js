@@ -11,12 +11,21 @@ const WatchHistorySchema = new mongoose.Schema({
     ref: 'Content',
     required: true,
   },
+  // For TV series episode-level tracking
+  seasonNumber: { type: Number, default: null },
+  episodeNumber: { type: Number, default: null },
+
   watchedAt: {
     type: Date,
     default: Date.now,
   },
+  // Raw seconds into the video where the user left off
+  watchedSeconds: {
+    type: Number,
+    default: 0,
+  },
   duration: {
-    type: Number, // watched duration in seconds
+    type: Number, // total video duration in seconds
     default: 0,
   },
   progress: {
@@ -29,4 +38,11 @@ const WatchHistorySchema = new mongoose.Schema({
   },
 });
 
+// Compound index so each user+content+episode combo is unique
+WatchHistorySchema.index(
+  { user: 1, content: 1, seasonNumber: 1, episodeNumber: 1 },
+  { unique: true }
+);
+
 module.exports = mongoose.model('WatchHistory', WatchHistorySchema);
+

@@ -24,21 +24,29 @@ function Profile() {
   }, [user, navigate]);
 
   const fetchData = async () => {
+    // Fetch subscription — 404 just means no record yet (treat as free)
     try {
       const subRes = await apiClient.get('/subscription');
       setSubscription(subRes.data.data);
+    } catch (error) {
+      if (error.response?.status !== 404) {
+        console.error('Subscription fetch error:', error);
+      }
+      // 404 = no subscription record; leave as null (handled in render)
+    }
 
+    // Fetch watch history separately so subscription error doesn't break it
+    try {
       const historyRes = await apiClient.get('/watch-history?limit=5');
       setWatchStats({
         totalWatched: historyRes.data.total,
         continueWatching: historyRes.data.data,
       });
-
-      setLoading(false);
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      setLoading(false);
+      console.error('Watch history fetch error:', error);
     }
+
+    setLoading(false);
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -76,7 +84,9 @@ function Profile() {
                 </div>
                 <div className="info-item">
                   <label>Status:</label>
-                  <p>{subscription.isActive ? 'Active' : 'Inactive'}</p>
+                  <p style={{ color: subscription.isActive ? '#4ade80' : '#e50914' }}>
+                    {subscription.isActive ? '✅ Active' : '❌ Cancelled'}
+                  </p>
                 </div>
                 <div className="info-item">
                   <label>Max Screens:</label>
@@ -88,9 +98,18 @@ function Profile() {
                 </div>
               </div>
             ) : (
-              <p>No active subscription</p>
+              <div className="subscription-info">
+                <p style={{ color: 'rgba(255,255,255,0.55)', marginBottom: '12px' }}>
+                  You are on the <strong style={{ color: '#FFD700' }}>Free</strong> tier. Subscribe to unlock all content.
+                </p>
+              </div>
             )}
-            <button className="btn btn-primary">Manage Subscription</button>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate('/subscription')}
+            >
+              {subscription && subscription.plan !== 'free' ? 'Manage Subscription' : 'View Plans'}
+            </button>
           </section>
 
           <section className="profile-section">

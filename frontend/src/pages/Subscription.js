@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import PaymentGateway from '../components/PaymentGateway';
+import Toast from '../components/Toast';
 import '../styles/pages.css';
 import apiClient from '../utils/api';
 import { getUser } from '../utils/storage';
@@ -11,6 +13,8 @@ function Subscription() {
   const [plans, setPlans] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [gatewayPlan, setGatewayPlan] = useState(null); // plan object to pay for
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -40,27 +44,40 @@ function Subscription() {
     }
   };
 
-  const handleUpgrade = async (planName) => {
+  /* Opens the payment gateway instead of calling API directly */
+  const handleUpgrade = (plan) => {
+    setGatewayPlan(plan);
+  };
+
+  /* Called by PaymentGateway after the fake "success" screen */
+  const handlePaymentSuccess = async (plan) => {
+    setGatewayPlan(null);
     try {
       await apiClient.post('/subscription', {
-        plan: planName,
+        plan: plan.name,
         billingCycle: 'monthly',
       });
-      alert('Subscription updated successfully!');
-      fetchCurrentSubscription();
-    } catch (error) {
-      alert(error.response?.data?.message || 'Error updating subscription');
+    } catch (_) {
+      // ignore backend errors in mock mode
     }
+    setToast({
+      message: `🎉 You're now subscribed to the ${plan.name.toUpperCase()} plan!`,
+      type: 'success',
+    });
+    fetchCurrentSubscription();
   };
 
   const handleCancel = async () => {
     if (window.confirm('Are you sure you want to cancel your subscription?')) {
       try {
         await apiClient.delete('/subscription');
-        alert('Subscription cancelled');
+        setToast({ message: 'Subscription cancelled.', type: 'warning' });
         fetchCurrentSubscription();
       } catch (error) {
-        alert(error.response?.data?.message || 'Error cancelling subscription');
+        setToast({
+          message: error.response?.data?.message || 'Error cancelling subscription',
+          type: 'warning',
+        });
       }
     }
   };
@@ -70,6 +87,24 @@ function Subscription() {
   return (
     <div className="subscription-page">
       <Header />
+
+      {/* Toast notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      {/* Payment Gateway modal */}
+      {gatewayPlan && (
+        <PaymentGateway
+          plan={gatewayPlan}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setGatewayPlan(null)}
+        />
+      )}
 
       <div className="subscription-container">
         <h1>Subscription Plans</h1>
@@ -109,7 +144,7 @@ function Subscription() {
               {currentPlan?.plan !== plan.name && (
                 <button
                   className="btn btn-primary"
-                  onClick={() => handleUpgrade(plan.name)}
+                  onClick={() => handleUpgrade(plan)}
                 >
                   {currentPlan?.plan === 'free' ? 'Upgrade' : 'Change Plan'}
                 </button>

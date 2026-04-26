@@ -17,6 +17,7 @@ import AdminPanel from './pages/AdminPanel';
 import About from './pages/About';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
+import WatchHistory from './pages/WatchHistory';
 import Footer from './components/Footer';
 import Chatbot from './components/Chatbot';
 
@@ -55,6 +56,7 @@ function App() {
           <Route path="/detail/:contentId" element={<ContentDetail />} />
           <Route path="/watch/:contentId" element={<Watch />} />
           <Route path="/watchlist" element={<Watchlist />} />
+          <Route path="/history" element={<WatchHistory />} />
           <Route path="/search" element={<Search />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/account" element={<Account />} />
