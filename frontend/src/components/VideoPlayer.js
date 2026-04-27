@@ -12,14 +12,39 @@ function isOneDriveUrl(url) {
 }
 
 /**
- * Convert a OneDrive sharing URL to a backend proxy stream URL.
+ * Check if a direct URL points to a format that browsers cannot play natively
+ * and therefore needs server-side remuxing to MP4.
  */
-function getStreamUrl(url) {
+function needsRemux(url) {
+  if (!url) return false;
+  // Strip query string / hash before checking extension
+  const path = url.split('?')[0].split('#')[0].toLowerCase();
+  return path.endsWith('.avi') || path.endsWith('.wmv') || path.endsWith('.flv') || path.endsWith('.ts');
+}
+
+/**
+ * Build the API base URL, accounting for LAN access.
+ */
+function getApiBase() {
   let apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
   if (apiBase.includes('localhost') && window.location.hostname !== 'localhost') {
     apiBase = `http://${window.location.hostname}:5000/api`;
   }
-  return `${apiBase}/stream?url=${encodeURIComponent(url)}`;
+  return apiBase;
+}
+
+/**
+ * Convert a OneDrive sharing URL to a backend proxy stream URL.
+ */
+function getStreamUrl(url) {
+  return `${getApiBase()}/stream?url=${encodeURIComponent(url)}`;
+}
+
+/**
+ * Convert a direct video URL that needs remuxing to a backend remux proxy URL.
+ */
+function getRemuxUrl(url) {
+  return `${getApiBase()}/remux?url=${encodeURIComponent(url)}`;
 }
 
 /**
@@ -60,7 +85,11 @@ function VideoPlayer({ videoUrl, title, duration = 0, contentId, seasonNumber, e
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  const effectiveUrl = isOneDriveUrl(videoUrl) ? getStreamUrl(videoUrl) : videoUrl;
+  const effectiveUrl = isOneDriveUrl(videoUrl)
+    ? getStreamUrl(videoUrl)
+    : needsRemux(videoUrl)
+      ? getRemuxUrl(videoUrl)
+      : videoUrl;
 
   /* ── Save progress to backend ────────────────────── */
   const saveProgress = useCallback(async () => {

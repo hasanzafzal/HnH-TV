@@ -45,7 +45,26 @@ app.get('/api/health', (req, res) => {
 });
 
 // OneDrive video proxy - streams video from OneDrive sharing links
-const { resolveOneDriveUrl, proxyOneDriveStream, getCachedUrl, setCachedUrl } = require('./utils/onedriveProxy');
+const { resolveOneDriveUrl, proxyOneDriveStream, remuxDirectStream, getCachedUrl, setCachedUrl } = require('./utils/onedriveProxy');
+
+// Generic remux proxy — converts .avi / .wmv / .flv / .ts to browser-compatible MP4
+app.get('/api/remux', async (req, res) => {
+  const { url: sourceUrl } = req.query;
+
+  if (!sourceUrl) {
+    return res.status(400).json({ error: 'Missing url parameter' });
+  }
+
+  try {
+    console.log(`[Remux] Remuxing direct URL: ${sourceUrl.substring(0, 80)}…`);
+    remuxDirectStream(req, res, sourceUrl);
+  } catch (error) {
+    console.error('Remux proxy error:', error.message);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to remux video: ' + error.message });
+    }
+  }
+});
 
 app.get('/api/stream', async (req, res) => {
   const { url: shareUrl } = req.query;
@@ -63,7 +82,7 @@ app.get('/api/stream', async (req, res) => {
       setCachedUrl(shareUrl, downloadUrl);
     }
 
-    await proxyOneDriveStream(req, res, downloadUrl);
+    await proxyOneDriveStream(req, res, downloadUrl, shareUrl);
   } catch (error) {
     console.error('Stream proxy error:', error.message);
     if (!res.headersSent) {

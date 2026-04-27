@@ -59,18 +59,32 @@ function resolveOneDriveUrl(shareUrl) {
 }
 
 /**
- * Check if a file needs remuxing (MKV → MP4) for browser compatibility.
+ * Check if a file needs remuxing for browser compatibility.
+ * Checks content-disposition, content-type, AND the original URL as fallbacks.
  */
-function needsRemux(contentDisposition) {
-  if (!contentDisposition) return false;
-  const lower = contentDisposition.toLowerCase();
-  // Browser native formats: .mp4, .webm, .m4v (mostly), .mov (mostly)
-  // Needs remux: .mkv, .avi, .wmv, .flv, .3gp, .ts
-  return lower.includes('.mkv') || 
-         lower.includes('.avi') || 
-         lower.includes('.wmv') || 
-         lower.includes('.flv') ||
-         lower.includes('.ts');
+function needsRemux(contentDisposition, contentType, originalUrl) {
+  const combined = `${contentDisposition || ''} ${contentType || ''} ${originalUrl || ''}`.toLowerCase();
+  // Browser native formats: .mp4, .webm, .m4v, .mov
+  // Needs remux: .mkv, .avi, .wmv, .flv, .ts
+  return combined.includes('.mkv') || 
+         combined.includes('.avi') || 
+         combined.includes('.wmv') || 
+         combined.includes('.flv') ||
+         combined.includes('.ts') ||
+         combined.includes('video/x-msvideo') ||  // AVI MIME type
+         combined.includes('video/x-matroska') ||  // MKV MIME type
+         combined.includes('video/x-ms-wmv') ||    // WMV MIME type
+         combined.includes('video/x-flv');          // FLV MIME type
+}
+
+/**
+ * Check if a file needs full video re-encoding (not just remuxing/stream-copy).
+ * AVI and WMV use codecs (DivX, Xvid, WMV) that cannot be stream-copied into MP4.
+ */
+function needsReencode(contentDisposition, contentType, originalUrl) {
+  const combined = `${contentDisposition || ''} ${contentType || ''} ${originalUrl || ''}`.toLowerCase();
+  return combined.includes('.avi') || combined.includes('.wmv') || combined.includes('.flv') ||
+         combined.includes('video/x-msvideo') || combined.includes('video/x-ms-wmv') || combined.includes('video/x-flv');
 }
 
 /**
@@ -100,19 +114,20 @@ function getFileInfo(downloadUrl) {
 
 /**
  * Proxy a video stream from OneDrive to the client.
- * Uses follow-redirects to properly handle OneDrive CDN redirects.
- * For MKV files, remuxes to MP4 on the fly using FFmpeg.
- * For MP4/WebM files, proxies directly with Range support.
+ * For browser-incompatible formats (AVI, MKV, WMV, FLV, TS) — re-encodes via FFmpeg.
+ * For browser-native formats (MP4, WebM) — direct proxy with Range support.
  */
-async function proxyOneDriveStream(req, res, downloadUrl) {
+async function proxyOneDriveStream(req, res, downloadUrl, originalShareUrl) {
   const parsed = new URL(downloadUrl);
 
-  // First, do a HEAD request to check the content type
+  // HEAD request to determine the file type
   const fileInfo = await getFileInfo(downloadUrl);
+  const remuxNeeded = needsRemux(fileInfo.disposition, fileInfo.contentType, originalShareUrl || downloadUrl);
+  console.log(`[Stream] Detection: disposition="${fileInfo.disposition.substring(0, 80)}", type="${fileInfo.contentType}" → ${remuxNeeded ? 'FFmpeg TRANSCODE' : 'DIRECT PROXY'}`);
 
-  if (needsRemux(fileInfo.disposition)) {
-    // MKV file — remux to MP4 via FFmpeg
-    console.log('[Stream] MKV detected — remuxing to MP4 via FFmpeg');
+  if (remuxNeeded) {
+    // Non-browser-native format — re-encode to H.264/AAC via FFmpeg
+    console.log(`[Stream] Non-native format — re-encoding via FFmpeg (type: ${fileInfo.contentType}, disposition: ${fileInfo.disposition.substring(0, 60)})`);
 
     res.writeHead(200, {
       'Content-Type': 'video/mp4',
@@ -121,7 +136,6 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
       'X-Content-Type-Options': 'nosniff',
     });
 
-    // Fetch the full file from OneDrive (follows redirects)
     const proxyReq = https.get({
       hostname: parsed.hostname,
       path: parsed.pathname + parsed.search,
@@ -129,29 +143,38 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
       maxRedirects: 10,
     }, (proxyRes) => {
       if (proxyRes.statusCode !== 200) {
-        console.error(`[Stream] OneDrive returned status ${proxyRes.statusCode} for MKV`);
+        console.error(`[Stream] OneDrive returned status ${proxyRes.statusCode}`);
         if (!res.writableEnded) res.end();
         return;
       }
 
-      const ffmpeg = spawn('ffmpeg', [
+      const ffmpegArgs = [
         '-hide_banner',
-        '-loglevel', 'warning',
+        '-loglevel', 'info',
         '-probesize', '50M',
         '-analyzeduration', '50M',
+        '-err_detect', 'ignore_err',
         '-fflags', '+genpts+discardcorrupt',
         '-i', 'pipe:0',
-        '-map', '0:v:0',
-        '-map', '0:a:0',
-        '-c:v', 'copy',
+        '-map', '0:v:0?',
+        '-map', '0:a?',
+        '-c:v', 'libopenh264',
+        '-b:v', '1500k',
+        '-allow_skip_frames', '1',
+        '-pix_fmt', 'yuv420p',
         '-c:a', 'aac',
         '-b:a', '192k',
         '-ac', '2',
         '-ar', '48000',
+        '-max_muxing_queue_size', '4096',
         '-movflags', 'frag_keyframe+empty_moov+default_base_moof',
         '-f', 'mp4',
         'pipe:1'
-      ], {
+      ];
+
+      console.log('[FFmpeg] Args:', ffmpegArgs.join(' '));
+
+      const ffmpeg = spawn('ffmpeg', ffmpegArgs, {
         stdio: ['pipe', 'pipe', 'pipe']
       });
 
@@ -163,14 +186,9 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
           ffmpeg.stdin.once('drain', () => proxyRes.resume());
         }
       });
-      proxyRes.on('end', () => {
-        ffmpeg.stdin.end();
-      });
-      proxyRes.on('error', () => {
-        ffmpeg.stdin.end();
-      });
+      proxyRes.on('end', () => { ffmpeg.stdin.end(); });
+      proxyRes.on('error', () => { ffmpeg.stdin.end(); });
 
-      // Pipe FFmpeg stdout → response
       ffmpeg.stdout.pipe(res);
 
       ffmpeg.stdin.on('error', () => {});
@@ -200,17 +218,15 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
     });
 
     proxyReq.on('error', (err) => {
-      console.error('MKV proxy error:', err.message);
+      console.error('FFmpeg proxy error:', err.message);
       if (!res.headersSent) {
         res.status(502).json({ error: 'Failed to fetch video' });
       }
     });
 
   } else {
-    // MP4/WebM — direct proxy with Range support (follows redirects)
-    const headers = {
-      'User-Agent': 'Mozilla/5.0',
-    };
+    // MP4/WebM — direct proxy with Range support (preserves duration/seeking)
+    const headers = { 'User-Agent': 'Mozilla/5.0' };
     if (req.headers.range) {
       headers['Range'] = req.headers.range;
     }
@@ -225,7 +241,6 @@ async function proxyOneDriveStream(req, res, downloadUrl) {
     }, (proxyRes) => {
       console.log(`[Stream] OneDrive responded: ${proxyRes.statusCode}, content-length: ${proxyRes.headers['content-length'] || 'unknown'}`);
 
-      // If OneDrive returned an error, don't pipe garbage to the client
       if (proxyRes.statusCode >= 400) {
         console.error(`[Stream] OneDrive error: ${proxyRes.statusCode}`);
         if (!res.headersSent) {
@@ -291,4 +306,112 @@ function setCachedUrl(shareUrl, downloadUrl) {
   urlCache.set(shareUrl, { downloadUrl, timestamp: Date.now() });
 }
 
-module.exports = { resolveOneDriveUrl, proxyOneDriveStream, getCachedUrl, setCachedUrl };
+/**
+ * Remux a direct (non-OneDrive) video URL to browser-compatible fragmented MP4.
+ * Used for .avi, .wmv, .flv, .ts and other formats that browsers can't play natively.
+ */
+function remuxDirectStream(req, res, sourceUrl) {
+  const parsed = new URL(sourceUrl);
+  const httpModule = parsed.protocol === 'https:' ? https : require('follow-redirects').http;
+
+  res.writeHead(200, {
+    'Content-Type': 'video/mp4',
+    'Transfer-Encoding': 'chunked',
+    'Cache-Control': 'no-cache',
+    'X-Content-Type-Options': 'nosniff',
+  });
+
+  const proxyReq = httpModule.get({
+    hostname: parsed.hostname,
+    port: parsed.port || undefined,
+    path: parsed.pathname + parsed.search,
+    headers: { 'User-Agent': 'Mozilla/5.0' },
+    maxRedirects: 10,
+  }, (proxyRes) => {
+    if (proxyRes.statusCode !== 200) {
+      console.error(`[Remux] Source returned status ${proxyRes.statusCode}`);
+      if (!res.writableEnded) res.end();
+      return;
+    }
+
+    const ffmpegArgs = [
+      '-hide_banner',
+      '-loglevel', 'info',
+      '-probesize', '50M',
+      '-analyzeduration', '50M',
+      '-err_detect', 'ignore_err',
+      '-fflags', '+genpts+discardcorrupt',
+      '-i', 'pipe:0',
+      '-map', '0:v:0?',
+      '-map', '0:a?',
+      // AVI often uses MPEG-4 ASP (DivX/Xvid) which can't be stream-copied
+      // into MP4. Re-encode video to H.264 for guaranteed browser compatibility.
+      '-c:v', 'libopenh264',
+      '-b:v', '1500k',
+      '-allow_skip_frames', '1',
+      '-pix_fmt', 'yuv420p',
+      '-c:a', 'aac',
+      '-b:a', '192k',
+      '-ac', '2',
+      '-ar', '48000',
+      '-max_muxing_queue_size', '2048',
+      '-movflags', 'frag_keyframe+empty_moov+default_base_moof',
+      '-f', 'mp4',
+      'pipe:1'
+    ];
+
+    console.log('[FFmpeg/Remux] Args:', ffmpegArgs.join(' '));
+
+    const ffmpeg = spawn('ffmpeg', ffmpegArgs, {
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    // Pipe source → FFmpeg stdin with backpressure handling
+    proxyRes.on('data', (chunk) => {
+      const canWrite = ffmpeg.stdin.write(chunk);
+      if (!canWrite) {
+        proxyRes.pause();
+        ffmpeg.stdin.once('drain', () => proxyRes.resume());
+      }
+    });
+    proxyRes.on('end', () => { ffmpeg.stdin.end(); });
+    proxyRes.on('error', () => { ffmpeg.stdin.end(); });
+
+    // Pipe FFmpeg stdout → response
+    ffmpeg.stdout.pipe(res);
+
+    ffmpeg.stdin.on('error', () => {});
+    ffmpeg.stdout.on('error', () => {});
+
+    ffmpeg.stderr.on('data', (data) => {
+      const msg = data.toString().trim();
+      if (msg) console.log('[FFmpeg/Remux]', msg);
+    });
+
+    ffmpeg.on('error', (err) => {
+      console.error('[FFmpeg/Remux] Process error:', err.message);
+    });
+
+    ffmpeg.on('close', (code) => {
+      if (code !== 0 && code !== null) {
+        console.error('[FFmpeg/Remux] Exited with code:', code);
+      }
+      if (!res.writableEnded) res.end();
+    });
+
+    req.on('close', () => {
+      proxyRes.destroy();
+      ffmpeg.kill('SIGTERM');
+      proxyReq.destroy();
+    });
+  });
+
+  proxyReq.on('error', (err) => {
+    console.error('Remux proxy error:', err.message);
+    if (!res.headersSent) {
+      res.status(502).json({ error: 'Failed to fetch video for remuxing' });
+    }
+  });
+}
+
+module.exports = { resolveOneDriveUrl, proxyOneDriveStream, remuxDirectStream, getCachedUrl, setCachedUrl };
