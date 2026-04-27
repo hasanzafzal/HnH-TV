@@ -34,7 +34,9 @@ function resolveOneDriveUrl(shareUrl) {
           const cidLower = cid ? cid.toLowerCase() : pathParts[pathParts.length - 2].toLowerCase();
 
           if (shareId && cidLower) {
-            const downloadUrl = `https://my.microsoftpersonalcontent.com/personal/${cidLower}/_layouts/15/download.aspx?share=${shareId}`;
+            // Clean up shareId in case it has extra query params attached (like ?download=1)
+            const cleanShareId = shareId.split('?')[0];
+            const downloadUrl = `https://my.microsoftpersonalcontent.com/personal/${cidLower}/_layouts/15/download.aspx?share=${cleanShareId}`;
             resolve(downloadUrl);
           } else {
             reject(new Error('Could not extract CID or Share ID from OneDrive URL'));
@@ -61,7 +63,14 @@ function resolveOneDriveUrl(shareUrl) {
  */
 function needsRemux(contentDisposition) {
   if (!contentDisposition) return false;
-  return contentDisposition.includes('.mkv');
+  const lower = contentDisposition.toLowerCase();
+  // Browser native formats: .mp4, .webm, .m4v (mostly), .mov (mostly)
+  // Needs remux: .mkv, .avi, .wmv, .flv, .3gp, .ts
+  return lower.includes('.mkv') || 
+         lower.includes('.avi') || 
+         lower.includes('.wmv') || 
+         lower.includes('.flv') ||
+         lower.includes('.ts');
 }
 
 /**

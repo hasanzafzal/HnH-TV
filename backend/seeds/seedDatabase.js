@@ -98,6 +98,108 @@ const seedDatabase = async () => {
         image: 'https://via.placeholder.com/300x400?text=Animation',
         isActive: true,
       },
+      {
+        name: 'Adventure',
+        description: 'Exciting journeys and explorations',
+        image: 'https://via.placeholder.com/300x400?text=Adventure',
+        isActive: true,
+      },
+      {
+        name: 'Fantasy',
+        description: 'Magical and supernatural worlds',
+        image: 'https://via.placeholder.com/300x400?text=Fantasy',
+        isActive: true,
+      },
+      {
+        name: 'Mystery',
+        description: 'Puzzles and crime solving',
+        image: 'https://via.placeholder.com/300x400?text=Mystery',
+        isActive: true,
+      },
+      {
+        name: 'Documentary',
+        description: 'Real-life stories and facts',
+        image: 'https://via.placeholder.com/300x400?text=Documentary',
+        isActive: true,
+      },
+      {
+        name: 'Biography',
+        description: 'Life stories of notable people',
+        image: 'https://via.placeholder.com/300x400?text=Biography',
+        isActive: true,
+      },
+      {
+        name: 'History',
+        description: 'Historical events and periods',
+        image: 'https://via.placeholder.com/300x400?text=History',
+        isActive: true,
+      },
+      {
+        name: 'War',
+        description: 'Military conflict and warfare',
+        image: 'https://via.placeholder.com/300x400?text=War',
+        isActive: true,
+      },
+      {
+        name: 'Music',
+        description: 'Musical performances and stories',
+        image: 'https://via.placeholder.com/300x400?text=Music',
+        isActive: true,
+      },
+      {
+        name: 'Musical',
+        description: 'Stories told through song and dance',
+        image: 'https://via.placeholder.com/300x400?text=Musical',
+        isActive: true,
+      },
+      {
+        name: 'Family',
+        description: 'Content suitable for all ages',
+        image: 'https://via.placeholder.com/300x400?text=Family',
+        isActive: true,
+      },
+      {
+        name: 'Sport',
+        description: 'Athletic competitions and athletes',
+        image: 'https://via.placeholder.com/300x400?text=Sport',
+        isActive: true,
+      },
+      {
+        name: 'Western',
+        description: 'Stories of the American Old West',
+        image: 'https://via.placeholder.com/300x400?text=Western',
+        isActive: true,
+      },
+      {
+        name: 'Crime',
+        description: 'Criminal activities and investigations',
+        image: 'https://via.placeholder.com/300x400?text=Crime',
+        isActive: true,
+      },
+      {
+        name: 'Anime',
+        description: 'Japanese animated content',
+        image: 'https://via.placeholder.com/300x400?text=Anime',
+        isActive: true,
+      },
+      {
+        name: 'Reality-TV',
+        description: 'Unscripted real-life situations',
+        image: 'https://via.placeholder.com/300x400?text=RealityTV',
+        isActive: true,
+      },
+      {
+        name: 'Talk-Show',
+        description: 'Interviews and discussions',
+        image: 'https://via.placeholder.com/300x400?text=TalkShow',
+        isActive: true,
+      },
+      {
+        name: 'News',
+        description: 'Current events and information',
+        image: 'https://via.placeholder.com/300x400?text=News',
+        isActive: true,
+      },
     ]);
 
     console.log(`Created ${genres.length} genres`);

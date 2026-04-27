@@ -33,7 +33,6 @@ const AdminPanel = () => {
     qualityOptions: ['720p', '1080p'],
   });
   const [seasonsData, setSeasonsData] = useState([]);
-  const [bulkLinksInput, setBulkLinksInput] = useState('');
 
   const checkAdminAccess = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -265,65 +264,6 @@ const AdminPanel = () => {
     setShowForm(false);
   };
 
-  const handleBulkImportLinks = async () => {
-    if (!bulkLinksInput.trim()) {
-      alert('Please enter OneDrive content links');
-      return;
-    }
-    
-    const links = bulkLinksInput
-      .split('\n')
-      .filter(line => line.trim())
-      .map(line => line.trim());
-
-    if (links.length === 0) {
-      alert('No valid links found');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      let importedCount = 0;
-
-      for (const link of links) {
-        // Convert OneDrive sharing links to direct stream URLs
-        let videoUrl = link;
-        
-        if (link.includes('1drv.ms')) {
-          // Convert short OneDrive link to streaming URL
-          videoUrl = link.endsWith('?download=1') ? link : `${link}?download=1`;
-        } else if (link.includes('onedrive.live.com')) {
-          // Handle full OneDrive URLs
-          videoUrl = link.includes('embed') ? link.replace('embed', 'download') : link;
-        }
-        // Otherwise use the link as-is (for direct URLs or other sources)
-
-        await api.post('/content', {
-          title: `Content - ${new Date().getTime()}`,
-          description: 'Added via bulk import',
-          contentType: 'movie',
-          genre: genres.length > 0 ? [genres[0]._id] : [],
-          releaseDate: new Date().toISOString(),
-          videoUrl,
-          posterUrl: 'https://via.placeholder.com/300x450?text=Poster',
-          thumbnailUrl: 'https://via.placeholder.com/400x300?text=Thumbnail',
-          rating: 0,
-          ageRating: 'PG-13'
-        });
-        importedCount++;
-      }
-
-      alert(`✓ Successfully imported ${importedCount} content links`);
-      setBulkLinksInput('');
-      fetchContents();
-    } catch (error) {
-      console.error('Error importing links:', error);
-      alert('Failed to import some links. Please check the format.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleUpdateSubscription = async (userId, plan) => {
     try {
       setLoading(true);
@@ -440,6 +380,12 @@ const AdminPanel = () => {
           >
             💳 Subscriptions ({subscriptions.length})
           </button>
+          <button
+            className={`tab-btn ${activeTab === 'genres' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('genres'); setShowForm(false); }}
+          >
+            🏷️ Genres ({genres.length})
+          </button>
         </div>
         <button 
           className="btn-logout"
@@ -453,32 +399,6 @@ const AdminPanel = () => {
       {/* CONTENT TAB */}
       {activeTab === 'content' && (
         <>
-          <div className="bulk-import-section">
-            <h3>🔗 Bulk Import Links</h3>
-            <textarea
-              placeholder="Paste OneDrive links or video URLs (one per line)&#10;Examples:&#10;https://1drv.ms/v/s!FILE_ID&#10;https://example.com/video.mp4"
-              value={bulkLinksInput}
-              onChange={(e) => setBulkLinksInput(e.target.value)}
-              rows="6"
-              className="bulk-import-textarea"
-            />
-            <div className="bulk-import-actions">
-              <button
-                className="btn-import"
-                onClick={handleBulkImportLinks}
-                disabled={loading || !bulkLinksInput.trim()}
-              >
-                {loading ? '⏳ Importing...' : '📤 Import Links'}
-              </button>
-              <button
-                className="btn-secondary"
-                onClick={() => setBulkLinksInput('')}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
           <div className="admin-header">
             <h2>Content Library ({contents.length})</h2>
             <button 
@@ -530,13 +450,13 @@ const AdminPanel = () => {
               </div>
 
               <div className="form-group">
-                <label>Duration (minutes)</label>
+                <label>{formData.contentType === 'tv_series' ? 'Seasons' : 'Duration (minutes)'}</label>
                 <input
                   type="number"
                   name="duration"
                   value={formData.duration}
                   onChange={handleInputChange}
-                  placeholder="120"
+                  placeholder={formData.contentType === 'tv_series' ? 'e.g. 5' : '120'}
                 />
               </div>
 
@@ -1020,6 +940,97 @@ const AdminPanel = () => {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* GENRES TAB */}
+      {activeTab === 'genres' && (
+        <div className="genres-section">
+          <div className="admin-header">
+            <h2>Genre Management ({genres.length})</h2>
+            <button 
+              className="btn-primary"
+              onClick={() => setShowForm(!showForm)}
+            >
+              {showForm ? '✕ Close' : '+ Add New Genre'}
+            </button>
+          </div>
+
+          {showForm && (
+            <div className="content-form">
+              <h2>Add New Genre</h2>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const name = e.target.genreName.value;
+                const description = e.target.genreDescription.value;
+                try {
+                  setLoading(true);
+                  await api.post('/genres', { name, description });
+                  alert('Genre added successfully');
+                  e.target.reset();
+                  setShowForm(false);
+                  fetchGenres();
+                } catch (error) {
+                  alert(error.response?.data?.message || 'Failed to add genre');
+                } finally {
+                  setLoading(false);
+                }
+              }}>
+                <div className="form-group">
+                  <label>Genre Name *</label>
+                  <input name="genreName" type="text" required placeholder="e.g. Anime, Documentary" />
+                </div>
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea name="genreDescription" placeholder="Optional description" rows="2" />
+                </div>
+                <div className="form-actions">
+                  <button type="submit" className="btn-success" disabled={loading}>
+                    {loading ? 'Saving...' : 'Add Genre'}
+                  </button>
+                  <button type="button" className="btn-secondary" onClick={() => setShowForm(false)}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div className="table-responsive">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {genres.map(genre => (
+                  <tr key={genre._id}>
+                    <td><strong>{genre.name}</strong></td>
+                    <td>{genre.description || '—'}</td>
+                    <td className="actions">
+                      <button
+                        className="btn-delete"
+                        onClick={async () => {
+                          if (window.confirm(`Are you sure you want to delete "${genre.name}"?`)) {
+                            try {
+                              await api.delete(`/genres/${genre._id}`);
+                              alert('Genre deleted');
+                              fetchGenres();
+                            } catch (error) {
+                              alert('Failed to delete genre');
+                            }
+                          }
+                        }}
+                      >
+                        🗑 Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

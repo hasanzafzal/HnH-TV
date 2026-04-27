@@ -141,8 +141,13 @@ function ContentDetail() {
             <span className="rating">⭐ {content.rating}/10</span>
             <span className="type">{content.contentType === 'tv_series' ? 'TV Series' : 'Movie'}</span>
             <span className="year">{new Date(content.releaseDate).getFullYear()}</span>
-            {content.contentType === 'tv_series' && content.seasons && content.seasons.length > 0
-              ? <span className="duration">{content.seasons.length} Season{content.seasons.length !== 1 ? 's' : ''}</span>
+            {content.contentType === 'tv_series'
+              ? (content.duration > 0 || (content.seasons && content.seasons.length > 0)) && (
+                <span className="duration">
+                  {content.duration || content.seasons.length} Season
+                  {(content.duration || content.seasons.length) !== 1 ? 's' : ''}
+                </span>
+              )
               : content.duration && <span className="duration">{content.duration} min</span>
             }
             {watchProgress && (watchProgress.isCompleted || watchProgress.progress >= 95) && (
