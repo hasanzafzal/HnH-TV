@@ -118,15 +118,26 @@ function Watch() {
     <div className="watch-page">
       <Header />
       <div className="player-container">
-        <VideoPlayer
-          videoUrl={videoUrl}
-          title={playingTitle}
-          duration={currentEpisode?.duration || content.duration}
-          contentId={contentId}
-          seasonNumber={seasonNum}
-          episodeNumber={episodeNum}
-          startSeconds={savedSeconds}
-        />
+        {!videoUrl ? (
+          <div className="coming-soon-container" style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <div className="coming-soon-icon">🎬</div>
+            <h1>Coming Soon!</h1>
+            <p style={{ fontSize: '1.1rem', opacity: 0.8, maxWidth: '500px', margin: '12px auto' }}>
+              Ask HnH AI Assistant for other recommendations which you'll like ;)
+            </p>
+            <button className="btn btn-primary" onClick={() => navigate(`/detail/${contentId}`)}>← Back to Details</button>
+          </div>
+        ) : (
+          <VideoPlayer
+            videoUrl={videoUrl}
+            title={playingTitle}
+            duration={currentEpisode?.duration || content.duration}
+            contentId={contentId}
+            seasonNumber={seasonNum}
+            episodeNumber={episodeNum}
+            startSeconds={savedSeconds}
+          />
+        )}
       </div>
 
       <div className="watch-info">
