@@ -31,6 +31,7 @@ const AdminPanel = () => {
     ageRating: 'PG-13',
     language: 'English',
     qualityOptions: ['720p', '1080p'],
+    isFeatured: false,
   });
   const [seasonsData, setSeasonsData] = useState([]);
 
@@ -221,6 +222,7 @@ const AdminPanel = () => {
       ageRating: content.ageRating,
       language: content.language.join(', '),
       qualityOptions: content.qualityOptions || ['720p', '1080p'],
+      isFeatured: content.isFeatured || false,
     });
     setSeasonsData(content.seasons || []);
     setEditingId(content._id);
@@ -258,6 +260,7 @@ const AdminPanel = () => {
       ageRating: 'PG-13',
       language: 'English',
       qualityOptions: ['720p', '1080p'],
+      isFeatured: false,
     });
     setSeasonsData([]);
     setEditingId(null);
@@ -695,6 +698,20 @@ const AdminPanel = () => {
                   placeholder="English, Spanish"
                 />
               </div>
+
+              <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input
+                  type="checkbox"
+                  id="isFeatured"
+                  name="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                />
+                <label htmlFor="isFeatured" style={{ margin: 0, cursor: 'pointer', fontWeight: 'bold', color: '#e50914' }}>
+                  ★ Feature on Home (Our Picks)
+                </label>
+              </div>
             </div>
 
             <div className="form-actions">
@@ -749,6 +766,11 @@ const AdminPanel = () => {
                       <span className={`status ${content.isActive ? 'active' : 'inactive'}`}>
                         {content.isActive ? '✓ Active' : '✕ Inactive'}
                       </span>
+                      {content.isFeatured && (
+                        <span className="badge badge-featured" style={{ marginLeft: '5px', backgroundColor: '#ffd700', color: '#000' }}>
+                          ★ Featured
+                        </span>
+                      )}
                     </td>
                     <td className="actions">
                       <button

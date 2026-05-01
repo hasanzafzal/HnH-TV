@@ -120,3 +120,15 @@ exports.getContinueWatching = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// @desc Clear user's entire watch history
+// @route DELETE /api/watch-history
+// @access Private
+exports.clearWatchHistory = async (req, res) => {
+  try {
+    await WatchHistory.deleteMany({ user: req.userId });
+    res.status(200).json({ success: true, message: 'Watch history cleared successfully' });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

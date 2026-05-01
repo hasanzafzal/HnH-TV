@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import '../styles/components.css';
 
-function CategorySlider({ title, content, onItemClick }) {
+function CategorySlider({ title, content, onItemClick, showArrows = false }) {
+  const sliderRef = useRef(null);
+
   const scroll = (direction) => {
-    const slider = document.querySelector('.slider-content');
-    const scrollAmount = 400;
-    if (direction === 'left') {
-      slider.scrollLeft -= scrollAmount;
-    } else {
-      slider.scrollLeft += scrollAmount;
+    if (sliderRef.current) {
+      const scrollAmount = 400;
+      if (direction === 'left') {
+        sliderRef.current.scrollLeft -= scrollAmount;
+      } else {
+        sliderRef.current.scrollLeft += scrollAmount;
+      }
     }
   };
 
@@ -16,10 +19,12 @@ function CategorySlider({ title, content, onItemClick }) {
     <div className="category-slider">
       <h2 className="slider-title">{title}</h2>
       <div className="slider-container">
-        <button className="slider-btn left" onClick={() => scroll('left')}>
-          ‹
-        </button>
-        <div className="slider-content">
+        {showArrows && (
+          <button className="slider-btn left" onClick={() => scroll('left')}>
+            ‹
+          </button>
+        )}
+        <div className="slider-content" ref={sliderRef}>
           {content.map((item) => (
             <div
               key={item._id}
@@ -34,9 +39,11 @@ function CategorySlider({ title, content, onItemClick }) {
             </div>
           ))}
         </div>
-        <button className="slider-btn right" onClick={() => scroll('right')}>
-          ›
-        </button>
+        {showArrows && (
+          <button className="slider-btn right" onClick={() => scroll('right')}>
+            ›
+          </button>
+        )}
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ const contentSchema = new mongoose.Schema(
     },
     contentType: {
       type: String,
-      enum: ['movie', 'series'],
+      enum: ['movie', 'series', 'tv_series'],
       required: true,
     },
     videoUrl: {
@@ -89,6 +89,10 @@ const contentSchema = new mongoose.Schema(
     views: {
       type: Number,
       default: 0,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

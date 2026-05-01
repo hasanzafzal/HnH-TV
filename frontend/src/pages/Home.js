@@ -9,7 +9,7 @@ import apiClient from '../utils/api';
 function Home() {
   const navigate = useNavigate();
   const [trendingContent, setTrendingContent] = useState([]);
-  const [newReleases, setNewReleases] = useState([]);
+  const [ourPicks, setOurPicks] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -23,10 +23,13 @@ function Home() {
       const trendingRes = await apiClient.get('/content/trending');
       setTrendingContent(trendingRes.data.data || []);
 
-      // Fetch all content
-      const allRes = await apiClient.get('/content?limit=50');
-      setNewReleases((allRes.data.data || []).slice(0, 20));
-      setPopularMovies((allRes.data.data || []).slice(20, 40));
+      // Fetch featured (Our Picks)
+      const featuredRes = await apiClient.get('/content/featured');
+      setOurPicks(featuredRes.data.data || []);
+
+      // Fetch popular movies (Only movies, sorted by rating)
+      const popularRes = await apiClient.get('/content?type=movie&sort=-rating&limit=20');
+      setPopularMovies(popularRes.data.data || []);
     } catch (error) {
       console.warn('Content fetch failed (expected without DB):', error.message);
       // Continue anyway - show empty state
@@ -56,7 +59,8 @@ function Home() {
     return <div className="loading">Loading...</div>;
   }
 
-  const featuredContent = trendingContent[0];
+  const allContent = [...trendingContent, ...ourPicks, ...popularMovies];
+  const featuredContent = allContent.find(c => c.title && c.title.toLowerCase().includes('rush')) || trendingContent[0];
 
   return (
     <div className="home">
@@ -93,14 +97,16 @@ function Home() {
             title="Trending Now"
             content={trendingContent}
             onItemClick={handleWatchClick}
+            showArrows={true}
           />
         )}
 
-        {newReleases.length > 0 && (
+        {ourPicks.length > 0 && (
           <CategorySlider
-            title="Latest on HnH TV"
-            content={newReleases}
+            title="Our Picks"
+            content={ourPicks}
             onItemClick={handleWatchClick}
+            showArrows={true}
           />
         )}
 
@@ -109,6 +115,7 @@ function Home() {
             title="Popular Movies"
             content={popularMovies}
             onItemClick={handleWatchClick}
+            showArrows={true}
           />
         )}
       </div>

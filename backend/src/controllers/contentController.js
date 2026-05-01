@@ -154,6 +154,22 @@ exports.getTrendingContent = async (req, res) => {
   }
 };
 
+// @desc Get featured content (Our Picks)
+// @route GET /api/content/featured
+// @access Public
+exports.getFeaturedContent = async (req, res) => {
+  try {
+    const content = await Content.find({ isActive: true, isFeatured: true })
+      .populate('genre', 'name')
+      .sort('-createdAt')
+      .limit(10);
+
+    res.status(200).json({ success: true, data: content });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 // @desc Get content by genre
 // @route GET /api/content/genre/:genreId
 // @access Public

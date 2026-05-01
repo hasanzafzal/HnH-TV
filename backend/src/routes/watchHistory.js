@@ -5,6 +5,7 @@ const {
   addToWatchHistory,
   getWatchProgress,
   getContinueWatching,
+  clearWatchHistory,
 } = require('../controllers/watchHistoryController');
 const { protect } = require('../middleware/auth');
 
@@ -15,5 +16,6 @@ router.get('/', getWatchHistory);
 router.get('/continue-watching', getContinueWatching);
 router.get('/:contentId', getWatchProgress);
 router.post('/:contentId', addToWatchHistory);
+router.delete('/', clearWatchHistory);
 
 module.exports = router;

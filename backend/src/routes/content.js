@@ -8,6 +8,7 @@ const {
   deleteContent,
   searchContent,
   getTrendingContent,
+  getFeaturedContent,
   getContentByGenre,
   advancedSearch,
 } = require('../controllers/contentController');
@@ -16,6 +17,7 @@ const { protect, adminOnly } = require('../middleware/auth');
 // Public routes
 router.get('/', getAllContent);
 router.get('/trending', getTrendingContent);
+router.get('/featured', getFeaturedContent);
 router.get('/genre/:genreId', getContentByGenre);
 router.get('/search/:query', searchContent);
 router.get('/advanced-search', advancedSearch);
