@@ -18,12 +18,46 @@
   gap: 30px;
 }
 
+@keyframes reflectStreakText {
+  0% {
+    background-position: 100% center;
+  }
+  100% {
+    background-position: 0% center;
+  }
+}
+
 .logo {
   font-size: 28px;
   font-weight: 900;
-  color: #FFD700;
   text-decoration: none;
   white-space: nowrap;
+  display: inline-block;
+  
+  /* Base gold color with a harsh white streak in the middle */
+  background: linear-gradient(
+    110deg,
+    #FFD700 0%,
+    #FFD700 45%,
+    #ffffff 50%,
+    #FFD700 55%,
+    #FFD700 100%
+  );
+  /* 300% width ensures the 50% white mark is far outside the text when position is 100% or 0% */
+  background-size: 300% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  
+  /* Initial position hides the streak completely */
+  background-position: 100% center;
+  
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  animation: reflectStreakText 1.5s ease-in-out;
 }
 
 .nav-menu {
@@ -37,12 +71,15 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
-  transition: color 0.3s;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .nav-link:hover {
   color: #FFD700;
+  background-color: rgba(255, 215, 0, 0.1);
 }
 
 .search-bar {
@@ -50,8 +87,15 @@
   align-items: center;
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.search-bar:focus-within {
+  border-color: #FFD700;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .search-bar input {

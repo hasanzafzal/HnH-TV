@@ -20,6 +20,7 @@ import NotFound from './pages/NotFound';
 import WatchHistory from './pages/WatchHistory';
 import Footer from './components/Footer';
 import Chatbot from './components/Chatbot';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   let apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -44,6 +45,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />

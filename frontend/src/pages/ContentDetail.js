@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Star, Play, Lock, Plus, Check, CheckCircle2, Clapperboard } from 'lucide-react';
 import Header from '../components/Header';
 import RatingComponent from '../components/RatingComponent';
 import '../styles/pages.css';
@@ -113,7 +114,7 @@ function ContentDetail() {
     <div className="coming-soon-page">
       <Header />
       <div className="coming-soon-container">
-        <div className="coming-soon-icon">🎬</div>
+        <div className="coming-soon-icon"><Clapperboard size={64} color="#FFD700" /></div>
         <h1>Stay Tuned!</h1>
         <p>Coming Soon</p>
         <button className="btn btn-primary" onClick={() => navigate(-1)}>← Go Back</button>
@@ -138,7 +139,9 @@ function ContentDetail() {
           <h1>{content.title}</h1>
 
           <div className="detail-meta">
-            <span className="rating">⭐ {content.rating}/10</span>
+            <span className="rating" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Star size={14} color="#FFD700" fill="#FFD700" /> {content.rating}/10
+            </span>
             <span className="type">{content.contentType === 'tv_series' ? 'TV Series' : 'Movie'}</span>
             <span className="year">{new Date(content.releaseDate).getFullYear()}</span>
             {content.contentType === 'tv_series'
@@ -151,7 +154,9 @@ function ContentDetail() {
               : content.duration && <span className="duration">{content.duration} min</span>
             }
             {watchProgress && (watchProgress.isCompleted || watchProgress.progress >= 95) && (
-              <span className="watched-tag">✓ Already Watched</span>
+              <span className="watched-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <CheckCircle2 size={14} /> Already Watched
+              </span>
             )}
             {content.genre && content.genre.length > 0 && (
               content.genre.map(g => (
@@ -179,14 +184,18 @@ function ContentDetail() {
           <div className="action-buttons">
             {!isTvSeries && (
               <button className="btn btn-primary" onClick={handleWatch}>
-                {subscribed ? '▶ Watch Now' : '🔒 Subscribe to Watch'}
+                {subscribed ? (
+                  <><Play size={18} fill="currentColor" /> Watch Now</>
+                ) : (
+                  <><Lock size={18} /> Subscribe to Watch</>
+                )}
               </button>
             )}
             <button
               className={`btn ${inWatchlist ? 'btn-added' : 'btn-secondary'}`}
               onClick={handleAddWatchlist}
             >
-              {inWatchlist ? '✓ In Watchlist' : '+ Watchlist'}
+              {inWatchlist ? <><Check size={18} /> In Watchlist</> : <><Plus size={18} /> Watchlist</>}
             </button>
           </div>
 
@@ -221,7 +230,9 @@ function ContentDetail() {
                         </div>
                         <div className="episode-meta">
                           {ep.duration > 0 && <span className="ep-duration">{ep.duration} min</span>}
-                          <span className="ep-play">{subscribed ? '▶ Play' : '🔒 Subscribe'}</span>
+                          <span className="ep-play" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {subscribed ? <><Play size={14} fill="currentColor" /> Play</> : <><Lock size={14} /> Subscribe</>}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -262,7 +273,9 @@ function ContentDetail() {
               <div key={review._id} className="review-item">
                 <div className="review-header">
                   <h4>{review.user.name}</h4>
-                  <span className="review-rating">⭐ {review.rating}/10</span>
+                  <span className="review-rating" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Star size={14} color="#FFD700" fill="#FFD700" /> {review.rating}/10
+                  </span>
                 </div>
                 {review.title && <p className="review-title">{review.title}</p>}
                 <p className="review-comment">{review.comment}</p>

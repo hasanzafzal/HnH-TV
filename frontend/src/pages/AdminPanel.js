@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Star, Edit2, Trash2, CheckCircle2, XCircle, Plus, Film, Tv, Sparkles, Pause, Play, X } from 'lucide-react';
 import '../styles/admin.css';
 import api from '../utils/api';
 
@@ -754,21 +755,23 @@ const AdminPanel = () => {
                   <tr key={content._id}>
                     <td className="title-cell">{content.title}</td>
                     <td>
-                      <span className={`badge badge-${content.contentType}`}>
-                        {content.contentType === 'movie' ? '🎬 Movie' : '📺 Series'}
+                      <span className={`badge badge-${content.contentType}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {content.contentType === 'movie' ? <><Film size={14} /> Movie</> : <><Tv size={14} /> Series</>}
                       </span>
                     </td>
                     <td>{new Date(content.releaseDate).toLocaleDateString()}</td>
                     <td>
-                      <span className="rating">⭐ {content.rating}/10</span>
+                      <span className={`rating`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Star size={14} color="#FFD700" fill="#FFD700" /> {content.rating}/10
+                      </span>
                     </td>
                     <td>
-                      <span className={`status ${content.isActive ? 'active' : 'inactive'}`}>
-                        {content.isActive ? '✓ Active' : '✕ Inactive'}
+                      <span className={`status ${content.isActive ? 'active' : 'inactive'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {content.isActive ? <><CheckCircle2 size={14} /> Active</> : <><XCircle size={14} /> Inactive</>}
                       </span>
                       {content.isFeatured && (
-                        <span className="badge badge-featured" style={{ marginLeft: '5px', backgroundColor: '#ffd700', color: '#000' }}>
-                          ★ Featured
+                        <span className="badge badge-featured" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginLeft: '5px', backgroundColor: '#ffd700', color: '#000' }}>
+                          <Sparkles size={14} /> Featured
                         </span>
                       )}
                     </td>
@@ -777,15 +780,17 @@ const AdminPanel = () => {
                         className="btn-edit"
                         onClick={() => handleEdit(content)}
                         title="Edit"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                       >
-                        ✎ Edit
+                        <Edit2 size={14} /> Edit
                       </button>
                       <button
                         className="btn-delete"
                         onClick={() => handleDelete(content._id)}
                         title="Delete"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                       >
-                        🗑 Delete
+                        <Trash2 size={14} /> Delete
                       </button>
                     </td>
                   </tr>
@@ -833,8 +838,9 @@ const AdminPanel = () => {
                           className="btn-delete"
                           onClick={() => handleDeleteUser(user._id)}
                           title="Delete User"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                         >
-                          🗑 Delete
+                          <Trash2 size={14} /> Delete
                         </button>
                       </td>
                     </tr>
@@ -875,12 +881,13 @@ const AdminPanel = () => {
                           <td>{u.email}</td>
                           <td>{u.name}</td>
                           <td>
-                            <button
-                              className="btn-edit"
-                              onClick={() => handleAssignSubscription(u._id)}
-                            >
-                              + Assign Free Plan
-                            </button>
+                              <button
+                                className="btn-edit"
+                                onClick={() => handleAssignSubscription(u._id)}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                              >
+                                <Plus size={14} /> Assign Free Plan
+                              </button>
                           </td>
                         </tr>
                       ))}
@@ -921,8 +928,8 @@ const AdminPanel = () => {
                           </span>
                         </td>
                         <td>
-                          <span className={`status ${sub.isActive ? 'active' : 'inactive'}`}>
-                            {sub.isActive ? '✓ Active' : '✕ Inactive'}
+                          <span className={`status ${sub.isActive ? 'active' : 'inactive'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            {sub.isActive ? <><CheckCircle2 size={14} /> Active</> : <><XCircle size={14} /> Inactive</>}
                           </span>
                         </td>
                         <td>{new Date(sub.startDate).toLocaleDateString()}</td>
@@ -944,15 +951,17 @@ const AdminPanel = () => {
                             className="btn-edit"
                             onClick={() => handleToggleSubscription(userId, sub.isActive)}
                             title={sub.isActive ? 'Deactivate' : 'Activate'}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            {sub.isActive ? '⏸ Deactivate' : '▶ Activate'}
+                            {sub.isActive ? <><Pause size={14} /> Deactivate</> : <><Play size={14} fill="currentColor" /> Activate</>}
                           </button>
                           <button
                             className="btn-delete"
                             onClick={() => handleDeleteSubscription(userId)}
                             title="Delete Subscription"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            🗑 Delete
+                            <Trash2 size={14} /> Delete
                           </button>
                         </td>
                       </tr>
@@ -973,8 +982,9 @@ const AdminPanel = () => {
             <button 
               className="btn-primary"
               onClick={() => setShowForm(!showForm)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
             >
-              {showForm ? '✕ Close' : '+ Add New Genre'}
+              {showForm ? <><X size={16} /> Close</> : <><Plus size={16} /> Add New Genre</>}
             </button>
           </div>
 
@@ -1044,8 +1054,9 @@ const AdminPanel = () => {
                             }
                           }
                         }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                       >
-                        🗑 Delete
+                        <Trash2 size={14} /> Delete
                       </button>
                     </td>
                   </tr>

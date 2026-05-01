@@ -1,32 +1,33 @@
 import React from 'react';
 import Header from '../components/Header';
+import { Gamepad2, Puzzle, Building2, Flag, Target, Sparkles, Diamond } from 'lucide-react';
 import '../styles/pages.css';
 
 function About() {
   const projects = [
     {
-      icon: '🎮',
+      icon: <Gamepad2 size={32} />,
       title: 'H&H-Plays.com',
       description:
         'A HTML based webpage aims to connect like minded PC Gaming enthusiasts of Pakistan.',
       link: 'https://github.com/hasanzafzal/CF-Semester-Project',
     },
     {
-      icon: '🧸',
+      icon: <Puzzle size={32} />,
       title: 'Wonderland Toy Store',
       description:
         'Our e-commerce wonderland toy store. Based on Python Flask. The latest from H&H; Hasan and Hashir.',
       link: 'https://github.com/hasanzafzal/Wonderland-Toy-Store',
     },
     {
-      icon: '🏨',
+      icon: <Building2 size={32} />,
       title: 'H&H for the Stay',
       description:
         'Our very own Hotel Reservation SQL Application for managing bookings and stays efficiently. Made using Qt and PostgreSQL.',
       link: 'https://github.com/WeWeBunnyX/HotelReservationSQL_Application',
     },
     {
-      icon: '🏎️',
+      icon: <Flag size={32} />,
       title: 'F1 Grub Themes',
       description:
         'FIA Formula One World Championship teams GRUB themes for bootloaders made by Hasan. Created it for friends, family and the OpenSource community.',
@@ -52,7 +53,7 @@ function About() {
         <div className="about-container">
           <div className="about-grid about-grid-3">
             <div className="about-card about-card-centered">
-              <div className="about-card-icon">🎯</div>
+              <div className="about-card-icon"><Target size={40} color="#FFD700" /></div>
               <h3>Our Mission</h3>
               <p>
                 We're dedicated to providing high quality, safe, and OpenSource
@@ -60,7 +61,7 @@ function About() {
               </p>
             </div>
             <div className="about-card about-card-centered">
-              <div className="about-card-icon">✨</div>
+              <div className="about-card-icon"><Sparkles size={40} color="#FFD700" /></div>
               <h3>Our Vision</h3>
               <p>
                 To be the best in what we do, contributing our part in making
@@ -68,7 +69,7 @@ function About() {
               </p>
             </div>
             <div className="about-card about-card-centered">
-              <div className="about-card-icon">💎</div>
+              <div className="about-card-icon"><Diamond size={40} color="#FFD700" /></div>
               <h3>Our Values</h3>
               <p>
                 Quality and transparency are at the heart of everything we do.

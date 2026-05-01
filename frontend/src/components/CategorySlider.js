@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../styles/components.css';
 
 function CategorySlider({ title, content, onItemClick, showArrows = false }) {
@@ -21,7 +22,7 @@ function CategorySlider({ title, content, onItemClick, showArrows = false }) {
       <div className="slider-container">
         {showArrows && (
           <button className="slider-btn left" onClick={() => scroll('left')}>
-            ‹
+            <ChevronLeft />
           </button>
         )}
         <div className="slider-content" ref={sliderRef}>
@@ -39,14 +40,16 @@ function CategorySlider({ title, content, onItemClick, showArrows = false }) {
               />
               <div className="item-overlay">
                 <h3>{item.title}</h3>
-                <p>⭐ {item.rating}</p>
+                <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Star size={14} color="#FFD700" fill="#FFD700" /> {item.rating}
+                </p>
               </div>
             </div>
           ))}
         </div>
         {showArrows && (
           <button className="slider-btn right" onClick={() => scroll('right')}>
-            ›
+            <ChevronRight />
           </button>
         )}
       </div>

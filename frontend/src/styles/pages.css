@@ -1975,3 +1975,50 @@
     font-size: 28px;
   }
 }
+
+/* Global Responsive Adjustments for Better HCI on Mobile */
+@media (max-width: 900px) {
+  .detail-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .content-poster {
+    position: static;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-banner {
+    height: 450px;
+  }
+  .hero-content {
+    padding: 20px;
+  }
+  .hero-content h1 {
+    font-size: 32px;
+  }
+  .hero-content p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+  .action-buttons .btn {
+    width: 100%;
+  }
+  .profile-main {
+    grid-template-columns: 1fr;
+  }
+  .detail-main h1 {
+    font-size: 28px;
+  }
+  .watch-info h1 {
+    font-size: 24px;
+  }
+  .results-grid, .watchlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}

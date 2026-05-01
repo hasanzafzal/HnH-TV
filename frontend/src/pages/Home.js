@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Play, Plus } from 'lucide-react';
 import Header from '../components/Header';
 import CategorySlider from '../components/CategorySlider';
 import ContinueWatching from '../components/ContinueWatching';
@@ -75,13 +76,13 @@ function Home() {
                 className="btn btn-primary"
                 onClick={() => handleWatchClick(featuredContent._id)}
               >
-                ▶ Play
+                <Play size={18} fill="currentColor" /> Play
               </button>
               <button
                 className="btn btn-secondary"
                 onClick={() => handleAddWatchlist(featuredContent._id)}
               >
-                + Watchlist
+                <Plus size={18} /> Watchlist
               </button>
             </div>
           </div>

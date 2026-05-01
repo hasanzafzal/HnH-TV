@@ -1,4 +1,5 @@
 import React from 'react';
+import { Star } from 'lucide-react';
 import '../styles/components.css';
 
 function RatingComponent({ rating, onRatingChange }) {
@@ -14,8 +15,9 @@ function RatingComponent({ rating, onRatingChange }) {
             onClick={() => onRatingChange(star)}
             onMouseEnter={() => setHoverRating(star)}
             onMouseLeave={() => setHoverRating(0)}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            ★
+            <Star size={20} fill={star <= (hoverRating || rating) ? 'currentColor' : 'none'} strokeWidth={1.5} />
           </button>
         ))}
       </div>
