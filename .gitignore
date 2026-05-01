@@ -51,3 +51,5 @@ coverage/
 .cache
 .parcel-cache
 .eslintcache
+backend/bin/ffmpeg
+backend/bin/ffprobe
