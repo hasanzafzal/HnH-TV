@@ -1,6 +1,10 @@
 const { https } = require('follow-redirects');
 const nativeHttps = require('https');
 const { spawn } = require('child_process');
+const path = require('path');
+
+const FFMPEG_BIN = path.join(__dirname, '../../bin/ffmpeg');
+const FFPROBE_BIN = path.join(__dirname, '../../bin/ffprobe');
 
 /**
  * Resolve a OneDrive sharing URL to a direct download URL.
@@ -107,7 +111,7 @@ function getFileInfo(downloadUrl) {
  */
 function probeVideoCodec(downloadUrl) {
   return new Promise((resolve) => {
-    const ffprobe = spawn('ffprobe', [
+    const ffprobe = spawn(FFPROBE_BIN, [
       '-v', 'quiet',
       '-print_format', 'json',
       '-show_streams',
@@ -139,16 +143,6 @@ function probeVideoCodec(downloadUrl) {
 /** Browser-compatible video codecs that can play natively in most browsers */
 const BROWSER_SAFE_CODECS = ['h264', 'vp8', 'vp9', 'av1'];
 
-/**
- * Transcode a video URL to browser-compatible fragmented MP4 using FFmpeg.
- * 
- * KEY DESIGN DECISION: FFmpeg reads the URL directly (not via pipe:0).
- * This is critical because:
- *   - AVI files store their index at the END of the file. Pipe input can't seek.
- *   - MKV/WMV may also need seeking for proper demuxing.
- *   - FFmpeg natively supports HTTPS URLs with seeking.
- *   - This eliminates the entire class of "pipe can't seek" errors.
- */
 function transcodeUrlToMp4(req, res, sourceUrl) {
   res.writeHead(200, {
     'Content-Type': 'video/webm',
@@ -170,30 +164,32 @@ function transcodeUrlToMp4(req, res, sourceUrl) {
     '-err_detect', 'ignore_err',
     '-fflags', '+genpts+discardcorrupt+igndts',
     '-i', sourceUrl,
-    // Map first video + all audio streams
+    // Map first video + first audio only (skip subtitles/attachments)
     '-map', '0:v:0?',
-    '-map', '0:a?',
-    // Video: VP8 via libvpx — universally browser-compatible, much more reliable than libopenh264
+    '-map', '0:a:0?',
+    '-sn',
+    // Video: VP8 via libvpx (WebM is reliable for chunked streaming)
     '-c:v', 'libvpx',
     '-b:v', '2000k',
     '-crf', '20',
     '-g', '60',
     '-deadline', 'realtime',
     '-cpu-used', '8',
-    // Audio: Vorbis for WebM container
+    // Limit to 1080p max to prevent live-transcode timeouts
+    '-vf', "scale='w=min(iw,1920):h=min(ih,1080):force_original_aspect_ratio=decrease',pad='w=ceil(iw/2)*2:h=ceil(ih/2)*2'",
+    // Audio: Vorbis
     '-c:a', 'libvorbis',
     '-b:a', '192k',
     '-ac', '2',
     '-ar', '48000',
-    // Output: WebM streamed to stdout
     '-max_muxing_queue_size', '8192',
     '-f', 'webm',
     'pipe:1'
   ];
 
-  console.log('[FFmpeg] Transcoding URL directly:', sourceUrl.substring(0, 80) + '…');
+  console.log(`[FFmpeg] Transcoding URL directly with local binary: ${sourceUrl.substring(0, 80)}…`);
 
-  const ffmpeg = spawn('ffmpeg', ffmpegArgs, {
+  const ffmpeg = spawn(FFMPEG_BIN, ffmpegArgs, {
     stdio: ['ignore', 'pipe', 'pipe']   // stdin=ignore (not used), stdout=pipe, stderr=pipe
   });
 
