@@ -9,28 +9,28 @@ function About() {
       title: 'H&H-Plays.com',
       description:
         'A HTML based webpage aims to connect like minded PC Gaming enthusiasts of Pakistan.',
-      link: '#',
+      link: 'https://github.com/hasanzafzal/CF-Semester-Project',
     },
     {
-      icon: '🗺️',
-      title: 'Quest Trek',
+      icon: '🧸',
+      title: 'Wonderland Toy Store',
       description:
-        'C++ Console based Capstone Project: Text-Based RPG - "Quests of Eldoria".',
-      link: '#',
+        'Our e-commerce wonderland toy store. Based on Python Flask. The latest from H&H; Hasan and Hashir.',
+      link: 'https://github.com/hasanzafzal/Wonderland-Toy-Store',
     },
     {
       icon: '🏨',
       title: 'H&H for the Stay',
       description:
         'Our very own Hotel Reservation SQL Application for managing bookings and stays efficiently. Made using Qt and PostgreSQL.',
-      link: '#',
+      link: 'https://github.com/WeWeBunnyX/HotelReservationSQL_Application',
     },
     {
       icon: '🏎️',
       title: 'F1 Grub Themes',
       description:
         'FIA Formula One World Championship teams GRUB themes for bootloaders made by Hasan. Created it for friends, family and the OpenSource community.',
-      link: '#',
+      link: 'https://github.com/hasanzafzal/F1-Grub-Themes',
     },
   ];
 
@@ -109,12 +109,12 @@ function About() {
               <span className="about-stat-label">Happy Customers</span>
             </div>
             <div className="about-stat">
-              <span className="about-stat-number">30+</span>
+              <span className="about-stat-number">25+</span>
               <span className="about-stat-label">Unique Titles</span>
             </div>
             <div className="about-stat">
-              <span className="about-stat-number">5+</span>
-              <span className="about-stat-label">Categories</span>
+              <span className="about-stat-number">Multiple</span>
+              <span className="about-stat-label">Genres</span>
             </div>
             <div className="about-stat">
               <span className="about-stat-number">24/7</span>
