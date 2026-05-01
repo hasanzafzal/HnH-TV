@@ -19,7 +19,7 @@ function needsRemux(url) {
   if (!url) return false;
   // Strip query string / hash before checking extension
   const path = url.split('?')[0].split('#')[0].toLowerCase();
-  return path.endsWith('.avi') || path.endsWith('.wmv') || path.endsWith('.flv') || path.endsWith('.ts');
+  return path.endsWith('.avi') || path.endsWith('.wmv') || path.endsWith('.flv') || path.endsWith('.ts') || path.endsWith('.mkv');
 }
 
 /**
