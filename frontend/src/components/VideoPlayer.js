@@ -60,7 +60,7 @@ function getErrorMessage(video) {
     case 3: // MEDIA_ERR_DECODE
       return 'This video format is not supported by your browser.';
     case 4: // MEDIA_ERR_SRC_NOT_SUPPORTED
-      return 'This video is currently unavailable. Please try again later.';
+      return 'This title is currently unavailable. Please ask the HnH AI assistant for other recommendations. Sorry for the inconvenience.';
     default:
       return 'An unexpected playback error occurred.';
   }
@@ -220,7 +220,7 @@ function VideoPlayer({ videoUrl, title, duration = 0, contentId, seasonNumber, e
           <div className="player-error-overlay">
             <div className="player-error-content">
               <div className="player-error-icon">⚠</div>
-              <h3 className="player-error-title">Whoops, something went wrong...</h3>
+              <h3 className="player-error-title">Playback Error</h3>
               <p className="player-error-message">{error}</p>
               <p className="player-error-code">Error Code: HNH-{retryCount > 0 ? 'R' : 'P'}{Date.now().toString(36).slice(-4).toUpperCase()}</p>
               <div className="player-error-actions">
