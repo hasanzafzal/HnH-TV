@@ -30,8 +30,13 @@ function CategorySlider({ title, content, onItemClick, showArrows = false }) {
               key={item._id}
               className="slider-item"
               onClick={() => onItemClick(item._id)}
-              style={{ backgroundImage: `url(${item.posterUrl})` }}
             >
+              <img 
+                src={item.posterUrl} 
+                alt={item.title} 
+                loading="lazy" 
+                className="slider-item-img"
+              />
               <div className="item-overlay">
                 <h3>{item.title}</h3>
                 <p>⭐ {item.rating}</p>

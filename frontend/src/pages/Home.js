@@ -19,16 +19,15 @@ function Home() {
 
   const fetchContent = async () => {
     try {
-      // Fetch trending
-      const trendingRes = await apiClient.get('/content/trending');
+      setLoading(true);
+      const [trendingRes, featuredRes, popularRes] = await Promise.all([
+        apiClient.get('/content/trending'),
+        apiClient.get('/content/featured'),
+        apiClient.get('/content?type=movie&sort=-rating&limit=20')
+      ]);
+
       setTrendingContent(trendingRes.data.data || []);
-
-      // Fetch featured (Our Picks)
-      const featuredRes = await apiClient.get('/content/featured');
       setOurPicks(featuredRes.data.data || []);
-
-      // Fetch popular movies (Only movies, sorted by rating)
-      const popularRes = await apiClient.get('/content?type=movie&sort=-rating&limit=20');
       setPopularMovies(popularRes.data.data || []);
     } catch (error) {
       console.warn('Content fetch failed (expected without DB):', error.message);
