@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Send, X } from 'lucide-react';
+import { getUser } from '../utils/storage';
 import '../styles/chatbot.css';
+
+// AI backend URL — FastAPI runs on port 8000
+let AI_API_URL = process.env.REACT_APP_AI_URL || 'http://localhost:8000';
+if (AI_API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
+  AI_API_URL = `http://${window.location.hostname}:8000`;
+}
 
 function Chatbot() {
   const location = useLocation();
@@ -10,11 +18,12 @@ function Chatbot() {
     {
       id: 1,
       sender: 'bot',
-      text: "Hi! I'm HnH TV's AI assistant. How can I help you today?",
+      text: "Hi! I'm HnH TV's AI assistant. Tell me your mood or ask for a recommendation! You can also say \"surprise me\" or enable \"kid mode\".",
       time: new Date(),
     },
   ]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -27,32 +36,76 @@ function Chatbot() {
 
   if (isWatchPage) return null;
 
-  const handleSend = (e) => {
+  const user = getUser();
+
+  /**
+   * Parse the AI reply for movie titles and make them clickable.
+   * The reply format is: "- Title (Rating)\n"
+   */
+  const parseReply = (text) => {
+    // Split into lines and process each
+    const lines = text.split('\n');
+    return lines.map((line, i) => {
+      const trimmed = line.trim();
+      if (!trimmed) return null;
+      return <span key={i}>{trimmed}<br /></span>;
+    });
+  };
+
+  const handleSend = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input.trim();
 
     const userMsg = {
       id: Date.now(),
       sender: 'user',
-      text: input.trim(),
+      text: userMessage,
       time: new Date(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
+    setIsLoading(true);
 
-    // Placeholder bot response
-    setTimeout(() => {
+    try {
+      const userId = user?._id || user?.id || 'anonymous';
+
+      const response = await fetch(`${AI_API_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, message: userMessage }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI server responded with ${response.status}`);
+      }
+
+      const data = await response.json();
+
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           sender: 'bot',
-          text: "Thanks for your message! I'm not connected to an AI backend yet, but I'll be fully functional soon. Stay tuned! 🚀",
+          text: data.reply || 'No response from AI engine.',
           time: new Date(),
         },
       ]);
-    }, 800);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: `⚠️ Could not reach the AI engine. Make sure the AI server is running.\n(${error.message})`,
+          time: new Date(),
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formatTime = (date) => {
@@ -99,7 +152,7 @@ function Chatbot() {
               </div>
             </div>
             <button className="chatbot-close" onClick={() => setIsOpen(false)}>
-              ✕
+              <X size={18} />
             </button>
           </div>
 
@@ -111,11 +164,21 @@ function Chatbot() {
               >
                 {msg.sender === 'bot' && <span className="chatbot-msg-avatar"><BotIcon size={18} /></span>}
                 <div className="chatbot-msg-content">
-                  <p>{msg.text}</p>
+                  <p>{parseReply(msg.text)}</p>
                   <span className="chatbot-msg-time">{formatTime(msg.time)}</span>
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="chatbot-msg chatbot-msg-bot">
+                <span className="chatbot-msg-avatar"><BotIcon size={18} /></span>
+                <div className="chatbot-msg-content">
+                  <p className="chatbot-typing">
+                    <span></span><span></span><span></span>
+                  </p>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -124,11 +187,12 @@ function Chatbot() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
+              placeholder={isLoading ? 'Thinking...' : 'Type a message...'}
               autoFocus
+              disabled={isLoading}
             />
-            <button type="submit" disabled={!input.trim()}>
-              ➤
+            <button type="submit" disabled={!input.trim() || isLoading}>
+              <Send size={18} />
             </button>
           </form>
         </div>

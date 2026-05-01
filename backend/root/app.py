@@ -4,6 +4,7 @@
 # ============================================
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pymongo import MongoClient
 from collections import deque, defaultdict
@@ -22,6 +23,14 @@ db = client["test"]
 contents_col = db["contents"]
 watch_col = db["watchhistories"]
 app = FastAPI(title="H&H TV AI Engine")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 sessions = {}
 
