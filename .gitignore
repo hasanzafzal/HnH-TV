@@ -53,3 +53,6 @@ coverage/
 .eslintcache
 backend/bin/ffmpeg
 backend/bin/ffprobe
+*.pyc
+backend/root/__pycache__/app.cpython-314.pyc
+*.pyc
