@@ -1,0 +1,54 @@
+# Dependencies — rebuilt inside container
+node_modules
+frontend/node_modules
+backend/node_modules
+
+# Build outputs — rebuilt inside container
+frontend/build
+dist
+.next
+out
+
+# Git
+.git
+.gitignore
+
+# Environment files (passed via docker-compose)
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Python
+.venv
+__pycache__
+*.pyc
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local FFmpeg binaries (Docker uses system ffmpeg)
+backend/bin/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Docker files themselves
+docker-compose.yml
+Dockerfile
+Dockerfile.ai
+
+# Misc
+coverage
+.nyc_output
+.cache
+.eslintcache
+.gemini

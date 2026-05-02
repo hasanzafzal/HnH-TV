@@ -1,10 +1,16 @@
 import axios from 'axios';
 
-// Dynamically determine the API base URL to allow cross-device testing on local networks
-let API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-if (API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
-  API_URL = `http://${window.location.hostname}:5000/api`;
+// Dynamically determine the API base URL
+// In production (Docker/cloud), the app is served from the same origin via Nginx,
+// so we use a relative path. In development, we connect to localhost:5000.
+let API_URL;
+if (process.env.NODE_ENV === 'production') {
+  API_URL = '/api';
+} else {
+  API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  if (API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
+    API_URL = `http://${window.location.hostname}:5000/api`;
+  }
 }
 
 const apiClient = axios.create({

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
@@ -34,10 +35,12 @@ const subscriptionRoutes = require('./routes/subscription');
 const downloadRoutes = require('./routes/download');
 const errorHandler = require('./middleware/errorHandler');
 
-// Routes
-app.get('/', (req, res) => {
-  res.json({ message: 'HnH TV API Server is running' });
-});
+// Root API route (dev only — in production, React's index.html is served)
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/', (req, res) => {
+    res.json({ message: 'HnH TV API Server is running' });
+  });
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -104,14 +107,25 @@ app.use('/api/downloads', downloadRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+// --- Serve React frontend in production ---
+if (process.env.NODE_ENV === 'production') {
+  const buildPath = path.join(__dirname, '../../frontend/build');
+  app.use(express.static(buildPath));
+
+  // For any route not handled by API, serve the React app (SPA)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+} else {
+  // 404 handler (dev only — in prod, React handles all routes)
+  app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+  });
+}
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 

@@ -4,10 +4,16 @@ import { Send, X } from 'lucide-react';
 import { getUser } from '../utils/storage';
 import '../styles/chatbot.css';
 
-// AI backend URL — FastAPI runs on port 8000
-let AI_API_URL = process.env.REACT_APP_AI_URL || 'http://localhost:8000';
-if (AI_API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
-  AI_API_URL = `http://${window.location.hostname}:8000`;
+// AI backend URL — in production, Nginx proxies /ai/ to FastAPI
+// In development, connect directly to port 8000
+let AI_API_URL;
+if (process.env.NODE_ENV === 'production') {
+  AI_API_URL = '/ai';
+} else {
+  AI_API_URL = process.env.REACT_APP_AI_URL || 'http://localhost:8000';
+  if (AI_API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
+    AI_API_URL = `http://${window.location.hostname}:8000`;
+  }
 }
 
 function Chatbot() {

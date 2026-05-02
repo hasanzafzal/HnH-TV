@@ -26,6 +26,9 @@ function needsRemux(url) {
  * Build the API base URL, accounting for LAN access.
  */
 function getApiBase() {
+  if (process.env.NODE_ENV === 'production') {
+    return '/api';
+  }
   let apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
   if (apiBase.includes('localhost') && window.location.hostname !== 'localhost') {
     apiBase = `http://${window.location.hostname}:5000/api`;

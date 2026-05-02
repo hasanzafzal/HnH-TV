@@ -2,9 +2,13 @@ const { https } = require('follow-redirects');
 const nativeHttps = require('https');
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
-const FFMPEG_BIN = path.join(__dirname, '../../bin/ffmpeg');
-const FFPROBE_BIN = path.join(__dirname, '../../bin/ffprobe');
+// Use local binary if present, otherwise fall back to system PATH (Docker / cloud)
+const localFfmpeg = path.join(__dirname, '../../bin/ffmpeg');
+const localFfprobe = path.join(__dirname, '../../bin/ffprobe');
+const FFMPEG_BIN = fs.existsSync(localFfmpeg) ? localFfmpeg : 'ffmpeg';
+const FFPROBE_BIN = fs.existsSync(localFfprobe) ? localFfprobe : 'ffprobe';
 
 /**
  * Resolve a OneDrive sharing URL to a direct download URL.

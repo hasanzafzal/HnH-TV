@@ -23,9 +23,14 @@ import Chatbot from './components/Chatbot';
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
-  let apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-  if (apiBaseUrl.includes('localhost') && window.location.hostname !== 'localhost') {
-    apiBaseUrl = `http://${window.location.hostname}:5000/api`;
+  let apiBaseUrl;
+  if (process.env.NODE_ENV === 'production') {
+    apiBaseUrl = '/api';
+  } else {
+    apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    if (apiBaseUrl.includes('localhost') && window.location.hostname !== 'localhost') {
+      apiBaseUrl = `http://${window.location.hostname}:5000/api`;
+    }
   }
   useEffect(() => {
     // Health check in background (non-blocking)
