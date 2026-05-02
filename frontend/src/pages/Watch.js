@@ -77,6 +77,18 @@ function Watch() {
 
   const isTvSeries = content.contentType === 'tv_series' && content.seasons && content.seasons.length > 0;
 
+  // For TV series without season/episode params, redirect to first available episode
+  if (isTvSeries && (!seasonNum || !episodeNum)) {
+    const firstSeason = content.seasons
+      .sort((a, b) => a.seasonNumber - b.seasonNumber)[0];
+    if (firstSeason && firstSeason.episodes && firstSeason.episodes.length > 0) {
+      const firstEp = firstSeason.episodes
+        .sort((a, b) => a.episodeNumber - b.episodeNumber)[0];
+      navigate(`/watch/${contentId}?season=${firstSeason.seasonNumber}&episode=${firstEp.episodeNumber}`, { replace: true });
+      return <div className="loading">Loading episode...</div>;
+    }
+  }
+
   if (isTvSeries && seasonNum && episodeNum) {
     currentSeason = content.seasons.find(s => s.seasonNumber === seasonNum);
     if (currentSeason) {
@@ -114,11 +126,14 @@ function Watch() {
     }
   };
 
+  // Show "Coming Soon" only for movies with no video URL (not for TV series)
+  const showComingSoon = !videoUrl && !isTvSeries;
+
   return (
     <div className="watch-page">
       <Header />
       <div className="player-container">
-        {!videoUrl ? (
+        {showComingSoon ? (
           <div className="coming-soon-container" style={{ padding: '60px 20px', textAlign: 'center' }}>
             <div className="coming-soon-icon">🎬</div>
             <h1>Coming Soon!</h1>
