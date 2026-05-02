@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pymongo import MongoClient
+from bson import ObjectId
 from collections import deque, defaultdict
 import random
 import re
@@ -21,6 +22,7 @@ client = MongoClient(MONGO_URI)
 
 db = client["test"]
 contents_col = db["contents"]
+genres_col = db["genres"]
 watch_col = db["watchhistories"]
 app = FastAPI(title="H&H TV AI Engine")
 
@@ -39,6 +41,32 @@ class ChatRequest(BaseModel):
     message: str
 
 # ============================================
+# GENRE LOOKUP CACHE
+# Build a map of ObjectId -> genre name string
+# ============================================
+
+_genre_cache = {}
+
+def get_genre_map():
+    """Load genre ObjectId -> name mapping from DB (cached)."""
+    global _genre_cache
+    if not _genre_cache:
+        for g in genres_col.find():
+            _genre_cache[str(g["_id"])] = g.get("name", "")
+    return _genre_cache
+
+def resolve_genre_names(item):
+    """Convert an item's genre ObjectId list to a list of genre name strings."""
+    genre_map = get_genre_map()
+    raw_genres = item.get("genre", [])
+    names = []
+    for g in raw_genres:
+        name = genre_map.get(str(g), "")
+        if name:
+            names.append(name)
+    return names
+
+# ============================================
 # SENTIMENT ANALYSIS
 # ============================================
 
@@ -46,11 +74,13 @@ def detect_mood(text):
     text = text.lower()
 
     mood_map = {
-        "sad": ["sad", "down", "cry", "depressed"],
-        "happy": ["happy", "great", "good", "joy"],
-        "bored": ["bored", "nothing to watch"],
-        "stressed": ["stress", "tired", "anxious"],
-        "excited": ["excited", "thrill", "energetic"]
+        "sad": ["sad", "down", "cry", "depressed", "upset", "lonely", "heartbroken", "miss", "lost"],
+        "happy": ["happy", "great", "good", "joy", "cheerful", "wonderful", "amazing", "awesome", "love"],
+        "bored": ["bored", "nothing to watch", "boring", "dull", "meh"],
+        "stressed": ["stress", "tired", "anxious", "overwhelmed", "burned out", "exhausted", "worried"],
+        "excited": ["excited", "thrill", "energetic", "pumped", "hyped", "adrenaline"],
+        "scared": ["scared", "horror", "spooky", "creepy", "terrified", "frightened"],
+        "romantic": ["romantic", "love", "date", "romance", "couple", "valentine"]
     }
 
     for mood, words in mood_map.items():
@@ -71,29 +101,38 @@ def mood_genres(mood):
         "bored": ["Action", "Thriller", "Crime"],
         "stressed": ["Comedy", "Animation", "Family"],
         "excited": ["Action", "Sci-Fi", "Thriller"],
-        "neutral": []
+        "scared": ["Horror", "Thriller", "Mystery"],
+        "romantic": ["Romance", "Drama", "Comedy"],
+        "neutral": ["Action", "Comedy", "Drama", "Adventure"]
     }
-    return mapping.get(mood, [])
+    return mapping.get(mood, ["Action", "Comedy", "Drama"])
 
 # ============================================
 # AGE FILTER
 # ============================================
 
-SAFE_RATINGS = ["G", "PG", "PG-13"]
+SAFE_AGE_RATINGS = ["G", "PG", "PG-13"]
 
 def kid_mode_filter(items):
-    return [x for x in items if x.get("rating") in SAFE_RATINGS]
+    return [x for x in items if x.get("ageRating") in SAFE_AGE_RATINGS]
 
 # ============================================
 # WATCH HISTORY
 # ============================================
 
 def get_watched_ids(userId):
-    watched = watch_col.find({"userId": userId})
+    """Get set of content IDs the user has watched."""
     ids = set()
 
-    for w in watched:
-        ids.add(str(w.get("contentId")))
+    # Try both string and ObjectId lookup since userId might be stored either way
+    try:
+        watched = watch_col.find({"user": ObjectId(userId)})
+        for w in watched:
+            content_id = w.get("content") or w.get("contentId")
+            if content_id:
+                ids.add(str(content_id))
+    except Exception:
+        pass
 
     return ids
 
@@ -102,7 +141,8 @@ def get_watched_ids(userId):
 # ============================================
 
 def load_all_content():
-    return list(contents_col.find())
+    """Load all active content from DB."""
+    return list(contents_col.find({"isActive": True}))
 
 # ============================================
 # FILTER WATCHED
@@ -129,19 +169,23 @@ def remove_watched(items, watched_ids):
 def score_content(item, preferred_genres, kid_mode):
     score = 0
 
-    item_genres = item.get("genre", [])
+    # Resolve genre ObjectIds to actual name strings
+    item_genre_names = resolve_genre_names(item)
 
-    for g in item_genres:
+    # Genre match is the PRIMARY signal (30 points per matching genre)
+    for g in item_genre_names:
         if g in preferred_genres:
             score += 30
 
+    # Kid mode bonus
     if kid_mode:
-        if item.get("rating") in SAFE_RATINGS:
+        if item.get("ageRating") in SAFE_AGE_RATINGS:
             score += 20
 
+    # Rating is a SECONDARY signal (0-10 scale)
     try:
-        score += float(item.get("averageRating", 0))
-    except:
+        score += float(item.get("rating", 0))
+    except (ValueError, TypeError):
         pass
 
     return score
@@ -149,7 +193,7 @@ def score_content(item, preferred_genres, kid_mode):
 # ============================================
 # GRAPH BUILDING
 # Node = content
-# Edge = shared genre
+# Edge = shared genre (using ObjectIds directly)
 # ============================================
 
 def build_graph(items):
@@ -157,8 +201,8 @@ def build_graph(items):
 
     for i in range(len(items)):
         for j in range(i + 1, len(items)):
-            g1 = set(items[i].get("genre", []))
-            g2 = set(items[j].get("genre", []))
+            g1 = set(str(x) for x in items[i].get("genre", []))
+            g2 = set(str(x) for x in items[j].get("genre", []))
 
             if g1.intersection(g2):
                 a = str(items[i]["_id"])
@@ -200,12 +244,15 @@ def bfs_recommend(start_id, graph):
 # ============================================
 
 def heuristic(item, target_genres):
-    item_genres = set(item.get("genre", []))
+    item_genre_names = set(resolve_genre_names(item))
     target = set(target_genres)
 
-    return len(target - item_genres)
+    return len(target - item_genre_names)
 
 def astar(items, target_genres):
+    if not target_genres:
+        return items
+
     scored = []
 
     for item in items:
@@ -245,11 +292,46 @@ def recommend(userId, message):
     session = sessions[userId]
 
     # --------------------------------
+    # Greeting
+    # --------------------------------
+    greetings = ["hi", "hello", "hey", "sup", "yo", "what's up", "howdy"]
+    if msg.strip() in greetings or msg.strip().rstrip("!") in greetings:
+        return (
+            "Hey there! 👋 I'm your HnH TV AI assistant.\n\n"
+            "Here's what I can do:\n"
+            "• Tell me your mood (happy, sad, bored, excited...)\n"
+            "• Say \"surprise me\" for a random pick\n"
+            "• Say \"kid mode\" for child-safe content\n\n"
+            "What are you in the mood for?"
+        )
+
+    # --------------------------------
+    # Help
+    # --------------------------------
+    if "help" in msg or "what can you do" in msg:
+        return (
+            "I can recommend movies & shows based on your mood! 🎬\n\n"
+            "Try saying:\n"
+            "• \"I'm feeling sad\" → uplifting picks\n"
+            "• \"I'm bored\" → action-packed titles\n"
+            "• \"I'm excited\" → thrilling content\n"
+            "• \"Surprise me\" → random recommendation\n"
+            "• \"Kid mode\" → family-friendly only"
+        )
+
+    # --------------------------------
     # Kid Mode
     # --------------------------------
-    if "kid" in msg or "children" in msg or "family" in msg:
+    if "kid" in msg or "children" in msg or "child" in msg:
         session["kid_mode"] = True
-        return "Child-safe mode enabled. Tell me your mood or say Surprise Me."
+        return "🧸 Child-safe mode enabled! I'll only recommend family-friendly content.\n\nTell me your mood or say \"surprise me\"!"
+
+    # --------------------------------
+    # Disable Kid Mode
+    # --------------------------------
+    if "adult" in msg or "disable kid" in msg or "normal mode" in msg:
+        session["kid_mode"] = False
+        return "Kid mode disabled. All content is now available."
 
     # --------------------------------
     # Surprise Me
@@ -261,12 +343,24 @@ def recommend(userId, message):
         if session["kid_mode"]:
             items = kid_mode_filter(items)
 
+        if not items:
+            return "No content available right now. Stay tuned!"
+
         pick = surprise_me(items, watched_ids)
 
-        return f"🎲 Surprise Recommendation: {pick.get('title')}"
+        genre_names = resolve_genre_names(pick)
+        genre_str = ", ".join(genre_names) if genre_names else "N/A"
+
+        return (
+            f"🎲 Surprise Pick!\n\n"
+            f"🎬 {pick.get('title')}\n"
+            f"⭐ Rating: {pick.get('rating', 'N/A')}/10\n"
+            f"🎭 Genre: {genre_str}\n"
+            f"📅 Type: {'TV Series' if pick.get('contentType') == 'tv_series' else 'Movie'}"
+        )
 
     # --------------------------------
-    # Sentiment
+    # Sentiment-based Recommendation
     # --------------------------------
     mood = detect_mood(msg)
     pref_genres = mood_genres(mood)
@@ -275,6 +369,9 @@ def recommend(userId, message):
 
     if session["kid_mode"]:
         items = kid_mode_filter(items)
+
+    if not items:
+        return "No content available right now. Stay tuned!"
 
     watched_ids = get_watched_ids(userId)
     items = remove_watched(items, watched_ids)
@@ -295,12 +392,32 @@ def recommend(userId, message):
     top = final[:5]
 
     if not top:
-        return "No recommendations found."
+        return "No recommendations found. Try telling me how you feel!"
 
-    result = f"Detected Mood: {mood}\nRecommended:\n"
+    # --------------------------------
+    # Format Response
+    # --------------------------------
+    mood_emoji = {
+        "sad": "😢", "happy": "😊", "bored": "😴",
+        "stressed": "😰", "excited": "🤩",
+        "scared": "😱", "romantic": "💕", "neutral": "🎬"
+    }
 
-    for score, item in top:
-        result += f"- {item.get('title')} ({item.get('rating')})\n"
+    emoji = mood_emoji.get(mood, "🎬")
+    genre_str = ", ".join(pref_genres)
+
+    result = f"{emoji} Mood: {mood.capitalize()}\n"
+    result += f"🎭 Suggested genres: {genre_str}\n\n"
+    result += "Here are my picks for you:\n"
+
+    for i, (score, item) in enumerate(top, 1):
+        genre_names = resolve_genre_names(item)
+        item_genre_str = ", ".join(genre_names) if genre_names else ""
+        content_type = "📺" if item.get("contentType") == "tv_series" else "🎬"
+        result += f"{i}. {content_type} {item.get('title')} — ⭐ {item.get('rating', 'N/A')}/10"
+        if item_genre_str:
+            result += f" ({item_genre_str})"
+        result += "\n"
 
     return result
 
@@ -337,3 +454,14 @@ def bfs_demo():
         "start": start,
         "visited_order": order
     }
+
+# ============================================
+# CACHE REFRESH ROUTE
+# ============================================
+
+@app.post("/refresh-cache")
+def refresh_cache():
+    """Clear genre cache so new genres are picked up."""
+    global _genre_cache
+    _genre_cache = {}
+    return {"message": "Genre cache cleared"}
