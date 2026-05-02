@@ -7,6 +7,13 @@
 # --- Stage 1: Build the React frontend ---
 FROM node:20-alpine AS frontend-build
 
+WORKDIR /app
+
+# Create a minimal .env at /app/.env (the root) so env-cmd -f ../.env works
+# from /app/frontend. In Docker, REACT_APP_ vars are set at build time.
+RUN echo "REACT_APP_NODE_ENV=production" > .env && \
+    echo "REACT_APP_API_URL=/api" >> .env
+
 WORKDIR /app/frontend
 
 # Copy frontend package files and install deps
@@ -15,7 +22,6 @@ RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Copy frontend source and build
 COPY frontend/ ./
-ENV REACT_APP_NODE_ENV=production
 RUN npm run build
 
 

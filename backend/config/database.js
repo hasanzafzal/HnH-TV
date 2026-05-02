@@ -6,8 +6,8 @@ const dns = require('dns');
 // Override DNS to use Google's public DNS (fixes ISP DNS blocks on MongoDB Atlas SRV records)
 dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
 
-// Load .env from the backend root directory explicitly
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+// Load .env from the project root directory
+dotenv.config({ path: path.join(__dirname, '../..', '.env') });
 
 const connectDB = async () => {
   try {

@@ -14,7 +14,8 @@ import re
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+# Load .env from project root
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 MONGO_URI = os.getenv("MONGODB_URI")
 

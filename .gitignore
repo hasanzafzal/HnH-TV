@@ -52,3 +52,4 @@ backend/bin/ffprobe
 backend/root/__pycache__/app.cpython-314.pyc
 *.pyc
 *.pyc
+.env
