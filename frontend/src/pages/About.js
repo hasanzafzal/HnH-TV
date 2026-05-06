@@ -43,8 +43,9 @@ function About() {
       <section className="about-hero">
         <div className="about-hero-glow"></div>
         <div className="about-hero-content">
+          <img src="/favicon.svg" alt="HnH TV Logo" style={{ width: '100px', marginBottom: '20px' }} />
           <h1>About <span className="gold-text">HnH TV</span></h1>
-          <p>A project by Hasan, Huzaifa and Zunnorain; H&H group of companies</p>
+          <p>A project by Hasan, Huzaifa and Zunnorain; H&H group Pakistan</p>
         </div>
       </section>
 

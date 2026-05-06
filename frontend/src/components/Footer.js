@@ -5,7 +5,9 @@ function Footer() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <span className="site-footer-logo">HnH TV</span>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/favicon.svg" alt="HnH TV Logo" style={{ height: '35px' }} />
+        </Link>
         <nav className="site-footer-links">
           <Link to="/about">About</Link>
           <Link to="/help">Help & FAQ</Link>
