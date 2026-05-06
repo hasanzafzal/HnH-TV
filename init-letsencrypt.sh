@@ -69,7 +69,7 @@ if [ "$STAGING" -eq 1 ]; then
   CERTBOT_CMD="$CERTBOT_CMD --staging"
 fi
 
-$COMPOSE run --rm certbot $CERTBOT_CMD
+$COMPOSE run --rm --entrypoint "" certbot $CERTBOT_CMD
 echo ">>> Certificate obtained!"
 
 # --- Step 5: Reload Nginx with the real certificate ---
