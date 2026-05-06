@@ -31,7 +31,7 @@ const faqs = [
   {
     question: 'How do I add content to my watchlist?',
     answer:
-      'Navigate to any movie or TV series detail page and click the "+ Watchlist" button. You can view your saved items from "My List" in the navigation.',
+      'Navigate to any movie or TV series detail page and click the "+ Watchlist" button. You can view your saved items from "Watchlist" in the navigation.',
   },
   {
     question: 'What video formats are supported?',
