@@ -25,33 +25,24 @@ echo "=== HnH-TV SSL Bootstrap ==="
 echo "Domain: $DOMAIN"
 echo ""
 
-# --- Step 1: Create dummy certificate so Nginx can start ---
-echo ">>> Creating temporary self-signed certificate..."
+# --- Step 1: Create self-signed certificate so Nginx can start ---
+echo ">>> Creating self-signed certificate..."
 $COMPOSE run --rm --entrypoint "" certbot sh -c "
   mkdir -p /etc/letsencrypt/live/$DOMAIN &&
-  openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+  openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
     -keyout /etc/letsencrypt/live/$DOMAIN/privkey.pem \
     -out /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
     -subj '/CN=$DOMAIN'
 "
 echo ">>> Done."
 
-# --- Step 2: Start Nginx (it will use the dummy cert) ---
+# --- Step 2: Start Nginx (it will use the self-signed cert) ---
 echo ">>> Starting Nginx..."
 $COMPOSE up -d nginx
 echo ">>> Waiting 5 seconds for Nginx to be ready..."
 sleep 5
 
-# --- Step 3: Delete the dummy certificate ---
-echo ">>> Removing temporary certificate..."
-$COMPOSE run --rm --entrypoint "" certbot sh -c "
-  rm -rf /etc/letsencrypt/live/$DOMAIN &&
-  rm -rf /etc/letsencrypt/archive/$DOMAIN &&
-  rm -rf /etc/letsencrypt/renewal/$DOMAIN.conf
-"
-echo ">>> Done."
-
-# --- Step 4: Request real certificate from Let's Encrypt ---
+# --- Step 3: Try to get a real certificate from Let's Encrypt ---
 echo ">>> Requesting Let's Encrypt certificate..."
 
 # Build certbot command
@@ -69,15 +60,32 @@ if [ "$STAGING" -eq 1 ]; then
   CERTBOT_CMD="$CERTBOT_CMD --staging"
 fi
 
-$COMPOSE run --rm --entrypoint "" certbot $CERTBOT_CMD
-echo ">>> Certificate obtained!"
+# Try to get the real cert — if it fails, keep the self-signed one
+if $COMPOSE run --rm --entrypoint "" certbot $CERTBOT_CMD; then
+  echo ">>> Certificate obtained!"
+  echo ">>> Reloading Nginx with real certificate..."
+  $COMPOSE exec nginx nginx -s reload
+  echo ""
+  echo "=== SSL setup complete! ==="
+  echo "Your site is now available at: https://$DOMAIN"
+else
+  echo ""
+  echo "============================================"
+  echo "WARNING: Could not obtain Let's Encrypt certificate."
+  echo "This is likely due to a rate limit."
+  echo ""
+  echo "HTTPS is still active using a self-signed certificate."
+  echo "Your browser will show a security warning, but the"
+  echo "connection is still encrypted."
+  echo ""
+  echo "Re-run this script after the rate limit resets to get"
+  echo "a trusted certificate."
+  echo "============================================"
+  echo ""
+  echo ">>> Reloading Nginx with self-signed certificate..."
+  $COMPOSE exec nginx nginx -s reload
+fi
 
-# --- Step 5: Reload Nginx with the real certificate ---
-echo ">>> Reloading Nginx with real certificate..."
-$COMPOSE exec nginx nginx -s reload
-echo ""
-echo "=== SSL setup complete! ==="
-echo "Your site is now available at: https://$DOMAIN"
 echo ""
 echo "To start everything:  $COMPOSE up -d"
 echo "Certbot will auto-renew the certificate every 12 hours."
