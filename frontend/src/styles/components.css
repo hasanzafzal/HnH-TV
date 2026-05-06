@@ -743,19 +743,66 @@
 }
 
 @media (max-width: 480px) {
+  .header-container {
+    padding: 0 10px;
+  }
+  .logo {
+    font-size: 18px;
+  }
+  .nav-menu {
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 5px;
+    gap: 15px;
+  }
+  .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
+  .search-bar {
+    max-width: 140px;
+  }
+  .search-bar input {
+    width: 100%;
+  }
+  .user-btn {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
   .slider-item {
-    flex: 0 0 140px;
+    flex: 0 0 120px;
   }
   .slider-title {
     font-size: 18px;
   }
   .category-slider {
-    padding: 0 10px;
+    padding: 0 5px;
     margin: 20px 0;
   }
   .slider-content {
-    margin: 0 30px;
+    margin: 0 25px;
     gap: 10px;
+  }
+  .slider-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+  .slider-btn.left {
+    left: 0px;
+  }
+  .slider-btn.right {
+    right: 0px;
+  }
+  .card-info {
+    padding: 10px;
+  }
+  .card-info h3 {
+    font-size: 12px;
+  }
+  .play-btn, .watchlist-btn {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 }
 

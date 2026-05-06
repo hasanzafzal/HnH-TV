@@ -2022,3 +2022,53 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
+
+@media (max-width: 480px) {
+  .hero-banner {
+    height: 380px;
+  }
+  .hero-content {
+    padding: 15px;
+  }
+  .hero-content h1 {
+    font-size: 26px;
+  }
+  .hero-content p {
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+  .detail-main h1 {
+    font-size: 24px;
+  }
+  .detail-meta span {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  .description {
+    font-size: 13px;
+  }
+  .results-grid, .watchlist-grid, .plans-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+  }
+  .review-item {
+    padding: 15px;
+  }
+  .contact-card {
+    padding: 20px 15px;
+  }
+  .profile-container {
+    padding: 20px 15px;
+  }
+  .stat-card h3 {
+    font-size: 20px;
+  }
+  .site-footer-inner {
+    padding: 10px;
+  }
+  .site-footer-links {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
