@@ -56,14 +56,13 @@ echo ">>> Requesting Let's Encrypt certificate..."
 
 # Build certbot command
 CERTBOT_CMD="certbot certonly --webroot -w /var/www/certbot"
-CERTBOT_CMD="$CERTBOT_CMD -d $DOMAIN -d www.$DOMAIN"
+CERTBOT_CMD="$CERTBOT_CMD -d $DOMAIN"
 CERTBOT_CMD="$CERTBOT_CMD --non-interactive --agree-tos"
 
-if [ -n "$EMAIL" ]; then
-  CERTBOT_CMD="$CERTBOT_CMD --email $EMAIL"
-else
-  CERTBOT_CMD="$CERTBOT_CMD --register-unsafely-without-email"
+if [ -z "$EMAIL" ]; then
+  EMAIL="admin@$DOMAIN"
 fi
+CERTBOT_CMD="$CERTBOT_CMD --email $EMAIL --server https://api.buypass.com/acme/directory"
 
 if [ "$STAGING" -eq 1 ]; then
   CERTBOT_CMD="$CERTBOT_CMD --staging"
