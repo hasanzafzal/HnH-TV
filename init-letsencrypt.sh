@@ -59,10 +59,11 @@ CERTBOT_CMD="certbot certonly --webroot -w /var/www/certbot"
 CERTBOT_CMD="$CERTBOT_CMD -d $DOMAIN"
 CERTBOT_CMD="$CERTBOT_CMD --non-interactive --agree-tos"
 
-if [ -z "$EMAIL" ]; then
-  EMAIL="admin@$DOMAIN"
+if [ -n "$EMAIL" ]; then
+  CERTBOT_CMD="$CERTBOT_CMD --email $EMAIL"
+else
+  CERTBOT_CMD="$CERTBOT_CMD --register-unsafely-without-email"
 fi
-CERTBOT_CMD="$CERTBOT_CMD --email $EMAIL --server https://api.buypass.com/acme/directory"
 
 if [ "$STAGING" -eq 1 ]; then
   CERTBOT_CMD="$CERTBOT_CMD --staging"
