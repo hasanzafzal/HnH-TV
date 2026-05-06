@@ -56,7 +56,7 @@ echo ">>> Requesting Let's Encrypt certificate..."
 
 # Build certbot command
 CERTBOT_CMD="certbot certonly --webroot -w /var/www/certbot"
-CERTBOT_CMD="$CERTBOT_CMD -d $DOMAIN"
+CERTBOT_CMD="$CERTBOT_CMD -d $DOMAIN -d www.$DOMAIN"
 CERTBOT_CMD="$CERTBOT_CMD --non-interactive --agree-tos"
 
 if [ -n "$EMAIL" ]; then
