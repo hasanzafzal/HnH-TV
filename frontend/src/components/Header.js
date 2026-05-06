@@ -43,9 +43,7 @@ function Header() {
         </Link>
 
         <nav className="nav-menu">
-          <Link to="/" className="nav-link">
-            Home
-          </Link>
+
           <Link to="/explore" className="nav-link">
             Explore
           </Link>
