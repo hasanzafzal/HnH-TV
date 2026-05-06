@@ -145,10 +145,10 @@ code {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e50914;
+  background: #C4D300;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #c40812;
+  background: #D4E300;
 }
