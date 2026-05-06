@@ -1,0 +1,83 @@
+# HnH-TV
+
+HnH-TV is a full-stack, comprehensive media streaming platform. It offers an advanced video player with universal format support (including on-the-fly FFmpeg transcoding for AVI, MKV, HEVC), intelligent AI recommendations, and robust user management.
+
+## 🚀 Features
+
+*   **MERN Stack Core**: Built on MongoDB, Express.js, React.js, and Node.js.
+*   **Universal Video Streaming**: Seamless playback of diverse video formats (MKV, AVI, HEVC, MP4, WebM) with built-in FFmpeg transcoding on the server side. Handles complex remuxing and browser compatibility effortlessly.
+*   **AI Recommendations Chatbot**: Integrated FastAPI backend powered by Python to deliver personalized content recommendations and conversational interactions.
+*   **User Watch History & Resumes**: Tracks what users watch and resumes playback seamlessly from where they left off.
+*   **User Subscriptions**: Manages user access to premium content.
+*   **VidLink Pro Integration**: Aggregates premium external content.
+*   **Containerized Production Deployment**: Full Docker Compose setup including Nginx reverse proxy and Let's Encrypt SSL via Certbot.
+
+## 🛠️ Technology Stack
+
+*   **Frontend**: React (React Router, Axios, Lucide React)
+*   **Backend (Main API)**: Express.js, Node.js, Mongoose, JWT authentication
+*   **Backend (AI)**: FastAPI, Python, Uvicorn
+*   **Database**: MongoDB Atlas
+*   **Video Processing**: FFmpeg (Server-side)
+*   **Infrastructure**: Docker, Docker Compose, Nginx, Let's Encrypt
+
+## 📂 Project Structure
+
+```
+HnH-TV/
+├── backend/            # Express.js REST API & FFmpeg streaming pipeline
+├── frontend/           # React single-page application
+├── Dockerfile          # Multi-stage build for frontend and Node backend
+├── Dockerfile.ai       # Build for Python FastAPI AI Chatbot
+├── docker-compose.yml  # Orchestration for backend, AI, Nginx, and Certbot
+├── init-letsencrypt.sh # Script to bootstrap Let's Encrypt SSL certificates
+└── nginx.conf          # Nginx reverse proxy configuration
+```
+
+## 💻 Local Development
+
+### Prerequisites
+*   Node.js (v18+)
+*   Python 3.8+
+*   MongoDB
+*   FFmpeg (installed locally for transcoding support)
+
+### Setup
+
+1.  **Clone the repository** (if not already local)
+2.  **Install dependencies**
+    ```bash
+    npm run install-all
+    ```
+3.  **Environment Variables**
+    Create a `.env` file in the root directory. You'll need values for `MONGODB_URI`, `JWT_SECRET`, etc.
+4.  **Run Locally**
+    We use `concurrently` to run everything together.
+    ```bash
+    npm run dev
+    ```
+    This single command spins up:
+    *   React Frontend
+    *   Express Backend (Port 5000)
+    *   FastAPI Chatbot (Port 8000)
+
+## 🐳 Production Deployment (Docker)
+
+The platform is designed to be easily deployed to a cloud provider (e.g., Oracle Cloud) using Docker.
+
+1.  **Environment Variables**: Ensure `.env` is configured properly for production.
+2.  **SSL Setup**: 
+    If deploying for the first time, run the Let's Encrypt initialization script to bootstrap your certificates:
+    ```bash
+    chmod +x init-letsencrypt.sh
+    ./init-letsencrypt.sh
+    ```
+3.  **Start Services**:
+    ```bash
+    docker-compose up -d --build
+    ```
+    This will bring up the Node backend, Python AI backend, Nginx proxy on ports 80/443, and Certbot for automatic SSL renewal.
+
+## 📝 License
+
+This project is licensed under the [GPL-2.0 License](https://opensource.org/licenses/GPL-2.0).
