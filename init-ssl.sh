@@ -63,7 +63,7 @@ if [ "$STAGING" -eq 1 ]; then
 fi
 
 # Try to issue the certificate
-if $COMPOSE run --rm acme --force $ACME_CMD; then
+if $COMPOSE run --rm acme $ACME_CMD --force; then
   echo ">>> Certificate obtained!"
   echo ">>> Installing certificate..."
 
