@@ -1,6 +1,6 @@
 # HnH-TV
 
-**Live at:** [https://hnh-tv.duckdns.org/](https://hnh-tv.duckdns.org/)
+**Live at:** [https://www.hnh-tv.duckdns.org/](https://www.hnh-tv.duckdns.org/)
 
 HnH-TV is a full-stack, comprehensive media streaming platform. It offers an advanced video player with universal format support (including on-the-fly FFmpeg transcoding for AVI, MKV, HEVC), intelligent AI recommendations, and robust user management.
 
