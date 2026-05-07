@@ -49,11 +49,11 @@ $COMPOSE run --rm acme sh -c "\
 " 2>/dev/null || true
 
 echo ">>> Registering Let's Encrypt account..."
-$COMPOSE run --rm acme --server letsencrypt --register-account -m $EMAIL || true
+$COMPOSE run --rm acme --register-account -m $EMAIL --server letsencrypt || true
 
 echo ">>> Requesting Let's Encrypt certificate via acme.sh..."
 
-ACME_CMD="--issue -d $DOMAIN --webroot /var/www/certbot --keylength 2048 --server letsencrypt"
+ACME_CMD="--issue -d $DOMAIN -d www.$DOMAIN --webroot /var/www/certbot --keylength 2048 --server letsencrypt"
 
 if [ -n "$EMAIL" ]; then
   ACME_CMD="$ACME_CMD --accountemail $EMAIL"
