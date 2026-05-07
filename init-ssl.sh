@@ -70,6 +70,8 @@ if $COMPOSE run --rm acme $ACME_CMD --force; then
   echo ">>> Installing certificate..."
 
   # Install cert to the path Nginx expects
+  $COMPOSE run --rm acme sh -c "mkdir -p /etc/letsencrypt/live/$DOMAIN"
+  
   $COMPOSE run --rm acme --install-cert -d $DOMAIN \
     --fullchain-file /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
     --key-file /etc/letsencrypt/live/$DOMAIN/privkey.pem
