@@ -9,7 +9,7 @@
 set -e
 
 DOMAIN="hnh-tv.duckdns.org"
-EMAIL=""  # Optional: add your email for ZeroSSL account
+EMAIL="admin@hnh.tv"  # Required for ZeroSSL account registration
 STAGING=0 # Set to 1 to use Let's Encrypt staging (for testing)
 
 if docker compose version > /dev/null 2>&1; then
@@ -47,6 +47,9 @@ echo ">>> Removing self-signed certificate..."
 $COMPOSE run --rm acme sh -c "\
   rm -rf /etc/letsencrypt/live/$DOMAIN \
 " 2>/dev/null || true
+
+echo ">>> Registering ZeroSSL account..."
+$COMPOSE run --rm acme --register-account -m $EMAIL || true
 
 echo ">>> Requesting ZeroSSL certificate via acme.sh..."
 
