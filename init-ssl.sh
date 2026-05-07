@@ -48,13 +48,12 @@ $COMPOSE run --rm acme sh -c "\
   rm -rf /etc/letsencrypt/live/$DOMAIN \
 " 2>/dev/null || true
 
-echo ">>> Registering Buypass account..."
-$COMPOSE run --rm acme --server buypass --register-account -m $EMAIL || true
+echo ">>> Registering Let's Encrypt account..."
+$COMPOSE run --rm acme --server letsencrypt --register-account -m $EMAIL || true
 
-echo ">>> Requesting Buypass certificate via acme.sh..."
+echo ">>> Requesting Let's Encrypt certificate via acme.sh..."
 
-# Build acme.sh issue command
-ACME_CMD="--issue -d $DOMAIN --webroot /var/www/certbot --keylength 2048 --server buypass"
+ACME_CMD="--issue -d $DOMAIN --webroot /var/www/certbot --keylength 2048 --server letsencrypt"
 
 if [ -n "$EMAIL" ]; then
   ACME_CMD="$ACME_CMD --accountemail $EMAIL"
@@ -83,7 +82,7 @@ if $COMPOSE run --rm acme $ACME_CMD --force; then
 else
   echo ""
   echo "============================================"
-  echo "WARNING: Could not obtain Buypass certificate."
+  echo "WARNING: Could not obtain Let's Encrypt certificate."
   echo ""
   echo "HTTPS is still active using a self-signed certificate."
   echo "Your browser will show a security warning, but the"
