@@ -43,12 +43,19 @@ echo ">>> Waiting 5 seconds for Nginx to be ready..."
 sleep 5
 
 # --- Step 3: Try to get a real certificate from Let's Encrypt ---
+echo ">>> Removing self-signed certificate before requesting real one..."
+$COMPOSE run --rm --entrypoint "" certbot sh -c "\
+  rm -rf /etc/letsencrypt/live/$DOMAIN && \
+  rm -rf /etc/letsencrypt/archive/$DOMAIN && \
+  rm -rf /etc/letsencrypt/renewal/$DOMAIN.conf \
+" 2>/dev/null || true
+
 echo ">>> Requesting Let's Encrypt certificate..."
 
 # Build certbot command
 CERTBOT_CMD="certbot certonly --webroot -w /var/www/certbot"
 CERTBOT_CMD="$CERTBOT_CMD -d $DOMAIN"
-CERTBOT_CMD="$CERTBOT_CMD --non-interactive --agree-tos"
+CERTBOT_CMD="$CERTBOT_CMD --non-interactive --agree-tos --force-renewal"
 
 if [ -n "$EMAIL" ]; then
   CERTBOT_CMD="$CERTBOT_CMD --email $EMAIL"
