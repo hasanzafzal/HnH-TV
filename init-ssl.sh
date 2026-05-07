@@ -48,13 +48,13 @@ $COMPOSE run --rm acme sh -c "\
   rm -rf /etc/letsencrypt/live/$DOMAIN \
 " 2>/dev/null || true
 
-echo ">>> Registering ZeroSSL account..."
-$COMPOSE run --rm acme --register-account -m $EMAIL || true
+echo ">>> Registering Buypass account..."
+$COMPOSE run --rm acme --server buypass --register-account -m $EMAIL || true
 
-echo ">>> Requesting ZeroSSL certificate via acme.sh..."
+echo ">>> Requesting Buypass certificate via acme.sh..."
 
 # Build acme.sh issue command
-ACME_CMD="--issue -d $DOMAIN --webroot /var/www/certbot --keylength 2048"
+ACME_CMD="--issue -d $DOMAIN --webroot /var/www/certbot --keylength 2048 --server buypass"
 
 if [ -n "$EMAIL" ]; then
   ACME_CMD="$ACME_CMD --accountemail $EMAIL"
@@ -83,7 +83,7 @@ if $COMPOSE run --rm acme $ACME_CMD --force; then
 else
   echo ""
   echo "============================================"
-  echo "WARNING: Could not obtain ZeroSSL certificate."
+  echo "WARNING: Could not obtain Buypass certificate."
   echo ""
   echo "HTTPS is still active using a self-signed certificate."
   echo "Your browser will show a security warning, but the"
