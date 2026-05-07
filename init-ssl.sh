@@ -1,15 +1,15 @@
 #!/bin/bash
 # ============================================
-# HnH-TV — Let's Encrypt SSL Bootstrap Script
+# HnH-TV — ZeroSSL Bootstrap Script (via acme.sh)
 # Run this ONCE on your server to obtain the
-# initial certificate. After that, the certbot
+# initial certificate. After that, the acme.sh
 # container handles automatic renewal.
 # ============================================
 
 set -e
 
 DOMAIN="hnh-tv.duckdns.org"
-EMAIL=""  # Optional: add your email for renewal notices
+EMAIL=""  # Optional: add your email for ZeroSSL account
 STAGING=0 # Set to 1 to use Let's Encrypt staging (for testing)
 
 if docker compose version > /dev/null 2>&1; then
@@ -21,14 +21,14 @@ else
   exit 1
 fi
 
-echo "=== HnH-TV SSL Bootstrap ==="
+echo "=== HnH-TV SSL Bootstrap (ZeroSSL via acme.sh) ==="
 echo "Domain: $DOMAIN"
 echo ""
 
 # --- Step 1: Create self-signed certificate so Nginx can start ---
 echo ">>> Creating self-signed certificate..."
-$COMPOSE run --rm --entrypoint "" certbot sh -c "
-  mkdir -p /etc/letsencrypt/live/$DOMAIN &&
+$COMPOSE run --rm acme sh -c "\
+  mkdir -p /etc/letsencrypt/live/$DOMAIN && \
   openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
     -keyout /etc/letsencrypt/live/$DOMAIN/privkey.pem \
     -out /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
@@ -42,34 +42,36 @@ $COMPOSE up -d nginx
 echo ">>> Waiting 5 seconds for Nginx to be ready..."
 sleep 5
 
-# --- Step 3: Try to get a real certificate from Let's Encrypt ---
-echo ">>> Removing self-signed certificate before requesting real one..."
-$COMPOSE run --rm --entrypoint "" certbot sh -c "\
-  rm -rf /etc/letsencrypt/live/$DOMAIN && \
-  rm -rf /etc/letsencrypt/archive/$DOMAIN && \
-  rm -rf /etc/letsencrypt/renewal/$DOMAIN.conf \
+# --- Step 3: Remove self-signed cert and request real one ---
+echo ">>> Removing self-signed certificate..."
+$COMPOSE run --rm acme sh -c "\
+  rm -rf /etc/letsencrypt/live/$DOMAIN \
 " 2>/dev/null || true
 
-echo ">>> Requesting Let's Encrypt certificate..."
+echo ">>> Requesting ZeroSSL certificate via acme.sh..."
 
-# Build certbot command
-CERTBOT_CMD="certbot certonly --webroot -w /var/www/certbot"
-CERTBOT_CMD="$CERTBOT_CMD -d $DOMAIN"
-CERTBOT_CMD="$CERTBOT_CMD --non-interactive --agree-tos --force-renewal"
+# Build acme.sh issue command
+ACME_CMD="--issue -d $DOMAIN --webroot /var/www/certbot --keylength 2048"
 
 if [ -n "$EMAIL" ]; then
-  CERTBOT_CMD="$CERTBOT_CMD --email $EMAIL"
-else
-  CERTBOT_CMD="$CERTBOT_CMD --register-unsafely-without-email"
+  ACME_CMD="$ACME_CMD --accountemail $EMAIL"
 fi
 
+# Use Let's Encrypt staging for testing if requested
 if [ "$STAGING" -eq 1 ]; then
-  CERTBOT_CMD="$CERTBOT_CMD --staging"
+  ACME_CMD="$ACME_CMD --server letsencrypt --staging"
 fi
 
-# Try to get the real cert — if it fails, keep the self-signed one
-if $COMPOSE run --rm --entrypoint "" certbot $CERTBOT_CMD; then
+# Try to issue the certificate
+if $COMPOSE run --rm acme --force $ACME_CMD; then
   echo ">>> Certificate obtained!"
+  echo ">>> Installing certificate..."
+
+  # Install cert to the path Nginx expects
+  $COMPOSE run --rm acme --install-cert -d $DOMAIN \
+    --fullchain-file /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
+    --key-file /etc/letsencrypt/live/$DOMAIN/privkey.pem
+
   echo ">>> Reloading Nginx with real certificate..."
   $COMPOSE exec nginx nginx -s reload
   echo ""
@@ -78,21 +80,29 @@ if $COMPOSE run --rm --entrypoint "" certbot $CERTBOT_CMD; then
 else
   echo ""
   echo "============================================"
-  echo "WARNING: Could not obtain Let's Encrypt certificate."
-  echo "This is likely due to a rate limit."
+  echo "WARNING: Could not obtain ZeroSSL certificate."
   echo ""
   echo "HTTPS is still active using a self-signed certificate."
   echo "Your browser will show a security warning, but the"
   echo "connection is still encrypted."
   echo ""
-  echo "Re-run this script after the rate limit resets to get"
-  echo "a trusted certificate."
+  echo "Check the error above and re-run this script."
   echo "============================================"
   echo ""
+
+  # Recreate self-signed cert since we deleted it
+  echo ">>> Restoring self-signed certificate..."
+  $COMPOSE run --rm acme sh -c "\
+    mkdir -p /etc/letsencrypt/live/$DOMAIN && \
+    openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+      -keyout /etc/letsencrypt/live/$DOMAIN/privkey.pem \
+      -out /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
+      -subj '/CN=$DOMAIN'
+  "
   echo ">>> Reloading Nginx with self-signed certificate..."
   $COMPOSE exec nginx nginx -s reload
 fi
 
 echo ""
 echo "To start everything:  $COMPOSE up -d"
-echo "Certbot will auto-renew the certificate every 12 hours."
+echo "acme.sh daemon will auto-renew the certificate."

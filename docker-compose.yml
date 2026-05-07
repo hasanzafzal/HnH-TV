@@ -1,7 +1,7 @@
 # ============================================
 # HnH-TV Docker Compose
 # 4 services: backend (Express+React), ai (FastAPI),
-#             nginx (reverse proxy + SSL), certbot (Let's Encrypt)
+#             nginx (reverse proxy + SSL), acme.sh (ZeroSSL)
 # ============================================
 
 services:
@@ -57,9 +57,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - certbot-etc:/etc/letsencrypt:ro
-      - certbot-var:/var/lib/letsencrypt
-      - certbot-webroot:/var/www/certbot:ro
+      - ssl-certs:/etc/letsencrypt:ro
+      - acme-webroot:/var/www/certbot:ro
     depends_on:
       backend:
         condition: service_healthy
@@ -68,16 +67,17 @@ services:
     networks:
       - hnh-network
 
-  # --- Certbot (Let's Encrypt SSL) ---
-  certbot:
-    image: certbot/certbot
-    container_name: hnh-certbot
+  # --- acme.sh (ZeroSSL — free SSL certificates) ---
+  acme:
+    image: neilpang/acme.sh
+    container_name: hnh-acme
+    restart: unless-stopped
     volumes:
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - certbot-webroot:/var/www/certbot
-    # Auto-renew every 12 hours (checks if renewal is needed)
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+      - ssl-certs:/etc/letsencrypt
+      - acme-data:/acme.sh
+      - acme-webroot:/var/www/certbot
+    # Daemon mode: auto-renews every 60 days
+    command: daemon
     networks:
       - hnh-network
 
@@ -86,6 +86,6 @@ networks:
     driver: bridge
 
 volumes:
-  certbot-etc:
-  certbot-var:
-  certbot-webroot:
+  ssl-certs:
+  acme-data:
+  acme-webroot:

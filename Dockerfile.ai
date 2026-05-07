@@ -9,7 +9,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir fastapi uvicorn pymongo python-dotenv pydantic
 
 # Copy the FastAPI app
-COPY backend/root/app.py ./app.py
+COPY backend/ai/app.py ./app.py
 
 ENV PYTHONUNBUFFERED=1
 

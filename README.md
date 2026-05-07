@@ -12,7 +12,7 @@ HnH-TV is a full-stack, comprehensive media streaming platform. It offers an adv
 *   **User Watch History & Resumes**: Tracks what users watch and resumes playback seamlessly from where they left off.
 *   **User Subscriptions**: Manages user access to premium content.
 *   **VidLink Pro Integration**: Aggregates premium external content.
-*   **Containerized Production Deployment**: Full Docker Compose setup including Nginx reverse proxy and Let's Encrypt SSL via Certbot.
+*   **Containerized Production Deployment**: Full Docker Compose setup including Nginx reverse proxy and ZeroSSL certificates via acme.sh.
 
 ## 🛠️ Technology Stack
 
@@ -21,7 +21,7 @@ HnH-TV is a full-stack, comprehensive media streaming platform. It offers an adv
 *   **Backend (AI)**: FastAPI, Python, Uvicorn
 *   **Database**: MongoDB Atlas
 *   **Video Processing**: FFmpeg (Server-side)
-*   **Infrastructure**: Docker, Docker Compose, Nginx, Let's Encrypt
+*   **Infrastructure**: Docker, Docker Compose, Nginx, ZeroSSL
 
 ## 📂 Project Structure
 
@@ -31,8 +31,8 @@ HnH-TV/
 ├── frontend/           # React single-page application
 ├── Dockerfile          # Multi-stage build for frontend and Node backend
 ├── Dockerfile.ai       # Build for Python FastAPI AI Chatbot
-├── docker-compose.yml  # Orchestration for backend, AI, Nginx, and Certbot
-├── init-letsencrypt.sh # Script to bootstrap Let's Encrypt SSL certificates
+├── docker-compose.yml  # Orchestration for backend, AI, Nginx, and acme.sh
+├── init-ssl.sh         # Script to bootstrap ZeroSSL certificates
 └── nginx.conf          # Nginx reverse proxy configuration
 ```
 
@@ -69,16 +69,16 @@ The platform is designed to be easily deployed to a cloud provider (e.g., Oracle
 
 1.  **Environment Variables**: Ensure `.env` is configured properly for production.
 2.  **SSL Setup**: 
-    If deploying for the first time, run the Let's Encrypt initialization script to bootstrap your certificates:
+    If deploying for the first time, run the SSL initialization script to bootstrap your certificates:
     ```bash
-    chmod +x init-letsencrypt.sh
-    ./init-letsencrypt.sh
+    chmod +x init-ssl.sh
+    ./init-ssl.sh
     ```
 3.  **Start Services**:
     ```bash
     docker-compose up -d --build
     ```
-    This will bring up the Node backend, Python AI backend, Nginx proxy on ports 80/443, and Certbot for automatic SSL renewal.
+    This will bring up the Node backend, Python AI backend, Nginx proxy on ports 80/443, and acme.sh for automatic SSL renewal.
 
 ## 📝 License
 

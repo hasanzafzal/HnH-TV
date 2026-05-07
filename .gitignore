@@ -49,7 +49,5 @@ coverage/
 backend/bin/ffmpeg
 backend/bin/ffprobe
 *.pyc
-backend/root/__pycache__/app.cpython-314.pyc
-*.pyc
-*.pyc
+backend/ai/__pycache__/app.cpython-314.pyc
 .env
