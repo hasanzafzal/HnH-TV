@@ -1,4 +1,4 @@
-<img src="[your-image-url]([https://github.com/hasanzafzal/HnH-TV/blob/main/frontend/public/favicon.svg](https://github.com/user-attachments/assets/5d8f17ae-8ee3-485a-9751-d4e6f035fd75))" 
+<img src="[your-image-url](https://github.com/user-attachments/assets/5d8f17ae-8ee3-485a-9751-d4e6f035fd75)" height="20" align="center"> 
 
 # HnH-TV
 
