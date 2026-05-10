@@ -1,0 +1,216 @@
+{
+  "id": "95363982-dcad-4d15-8c9d-d270047de741",
+  "version": "2.0",
+  "name": "HnH-Testing",
+  "url": "https://hnh-tv.duckdns.org/",
+  "tests": [{
+    "id": "e0f3006c-f494-4aca-8268-8f0281ae17dc",
+    "name": "Login Test.",
+    "commands": [{
+      "id": "b92cea98-9ba6-47d4-8b36-cf3c25bbb269",
+      "comment": "",
+      "command": "open",
+      "target": "https://hnh-tv.duckdns.org/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3dd3c3e8-4653-45a6-8921-cc954bfc3060",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "735x707",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3a1b0690-32b6-4133-a991-37b2e635e5cb",
+      "comment": "",
+      "command": "click",
+      "target": "css=.user-btn",
+      "targets": [
+        ["css=.user-btn", "css:finder"],
+        ["xpath=//div[@id='root']/div/div/header/div/div/div/button", "xpath:idRelative"],
+        ["xpath=//div/button", "xpath:position"],
+        ["xpath=//button[contains(.,'👤 Admin')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "bb9e609a-9b81-4034-b8d5-b36cc7e0e7ca",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.user-btn",
+      "targets": [
+        ["css=.user-btn", "css:finder"],
+        ["xpath=//div[@id='root']/div/div/header/div/div/div/button", "xpath:idRelative"],
+        ["xpath=//div/button", "xpath:position"],
+        ["xpath=//button[contains(.,'👤 Admin')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "dd7cf68d-f96c-4119-8a67-9bb97c410045",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "css=.user-btn",
+      "targets": [
+        ["css=.user-btn", "css:finder"],
+        ["xpath=//div[@id='root']/div/div/header/div/div/div/button", "xpath:idRelative"],
+        ["xpath=//div/button", "xpath:position"],
+        ["xpath=//button[contains(.,'👤 Admin')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "bc6185c7-31ba-4b93-8ebf-77a60eee02b4",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=⚙️ Admin Panel",
+      "targets": [
+        ["linkText=⚙️ Admin Panel", "linkText"],
+        ["css=.admin-link", "css:finder"],
+        ["xpath=//a[contains(text(),'⚙️ Admin Panel')]", "xpath:link"],
+        ["xpath=//div[@id='root']/div/div/header/div/div/div/div/a[5]", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/admin')]", "xpath:href"],
+        ["xpath=//a[5]", "xpath:position"],
+        ["xpath=//a[contains(.,'⚙️ Admin Panel')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "05aec776-cfac-4c56-b4f3-15e8da8af0c5",
+      "comment": "",
+      "command": "click",
+      "target": "css=.tab-btn:nth-child(2)",
+      "targets": [
+        ["css=.tab-btn:nth-child(2)", "css:finder"],
+        ["xpath=//div[@id='root']/div/div/div/div[2]/button[2]", "xpath:idRelative"],
+        ["xpath=//button[2]", "xpath:position"],
+        ["xpath=//button[contains(.,'👥 Users (8)')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "e2b438e6-c4a3-4de5-aa90-45a0e26891f8",
+      "comment": "",
+      "command": "click",
+      "target": "css=.tab-btn:nth-child(3)",
+      "targets": [
+        ["css=.tab-btn:nth-child(3)", "css:finder"],
+        ["xpath=//div[@id='root']/div/div/div/div[2]/button[3]", "xpath:idRelative"],
+        ["xpath=//button[3]", "xpath:position"],
+        ["xpath=//button[contains(.,'💳 Subscriptions (8)')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "25457897-c4d2-48a4-8778-e0fa009920a4",
+      "comment": "",
+      "command": "click",
+      "target": "css=tr:nth-child(1) .plan-selector",
+      "targets": [
+        ["css=tr:nth-child(1) .plan-selector", "css:finder"],
+        ["xpath=//div[@id='root']/div/div/div[2]/div/table/tbody/tr/td[8]/select", "xpath:idRelative"],
+        ["xpath=//select", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "8a9d5e21-0dfc-43d3-8a95-e1a58f878156",
+      "comment": "",
+      "command": "select",
+      "target": "css=tr:nth-child(1) .plan-selector",
+      "targets": [],
+      "value": "label=VIP"
+    }, {
+      "id": "bdcaa2e6-4c84-462c-a121-67cd5590f909",
+      "comment": "",
+      "command": "click",
+      "target": "css=tr:nth-child(1) option:nth-child(3)",
+      "targets": [
+        ["css=tr:nth-child(1) option:nth-child(3)", "css:finder"],
+        ["xpath=//option[@value='premium']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div/div[2]/div/table/tbody/tr/td[8]/select/option[3]", "xpath:idRelative"],
+        ["xpath=//option[3]", "xpath:position"],
+        ["xpath=//option[contains(.,'Premium')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "4b338b5e-696d-4c62-b0e6-7da6a27e6271",
+      "comment": "",
+      "command": "assertAlert",
+      "target": "✓ Subscription updated",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "e89ee892-64c6-41ff-8d39-e308d44a5aa6",
+    "name": "Unit test",
+    "commands": [{
+      "id": "819e7d1d-60a7-4953-bcf8-d25f2c539c2c",
+      "comment": "",
+      "command": "open",
+      "target": "https://hnh-tv.duckdns.org/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c5884e78-7ac9-472d-95e8-60a8a857a6ab",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "723x732",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c63c39f8-070e-4f52-9f40-f232a4d6b634",
+      "comment": "",
+      "command": "click",
+      "target": "css=input",
+      "targets": [
+        ["css=input", "css:finder"],
+        ["xpath=//input[@value='']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div/header/div/form/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "75ce2dcd-48a0-4431-8877-427c91344d2c",
+      "comment": "",
+      "command": "type",
+      "target": "css=input",
+      "targets": [
+        ["css=input", "css:finder"],
+        ["xpath=//input[@value='']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div/header/div/form/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "Rush"
+    }, {
+      "id": "76437e02-2a83-4c8e-9b64-fde57ad7cf4e",
+      "comment": "",
+      "command": "runScript",
+      "target": "window.scrollTo(0,157)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b3134352-fb0a-44ab-bb2c-e63fc1b6b1e0",
+      "comment": "",
+      "command": "click",
+      "target": "css=.play-btn",
+      "targets": [
+        ["css=.play-btn", "css:finder"],
+        ["xpath=//div[@id='root']/div/div/div/div/div[2]/div/div/button", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Play')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "50386926-6229-4789-af2c-96838b97cb03",
+      "comment": "",
+      "command": "runScript",
+      "target": "window.scrollTo(0,0)",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "f52642f7-e04c-4296-85c1-6bc2bf2e67a6",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["e0f3006c-f494-4aca-8268-8f0281ae17dc"]
+  }],
+  "urls": ["https://hnh-tv.duckdns.org/"],
+  "plugins": []
+}
