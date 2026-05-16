@@ -1,6 +1,14 @@
 <img src="[your-image-url](https://github.com/user-attachments/assets/5d8f17ae-8ee3-485a-9751-d4e6f035fd75)" height="20" align="center"> 
-
 # HnH-TV
+Web Engineering, Human Computer Interaction, Artificial Intelligence and Cloud Computing Semester CEP Project
+
+Students: Hasan Zahid, Huzaifa Khawar and Muhammad Zunnorain Ali
+
+Enrollments: 01-1312332-028, 034 & 072
+
+Teachers: Engr. Subas Bilal, Dr. Joddat Fatima, Engr. Saad Mazhar Khan and Engr. Sulman Zafar
+
+Dept of SE, BUIC
 
 **Live at:** [https://www.hnh-tv.duckdns.org/](https://www.hnh-tv.duckdns.org/)
 
